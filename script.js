@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const hatimContainer = document.getElementById('hatimContainer');
 
-    // 3 hatim içisn bölümleri oluştur
+    // 3 hatim için bölümleri oluştur
     for (let h = 1; h <= 3; h++) {
         const hatimDiv = document.createElement('div');
         hatimDiv.className = 'hatim';

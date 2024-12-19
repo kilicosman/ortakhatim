@@ -3,11 +3,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const addHatimButton = document.getElementById('addHatimButton');
     let hatimCount = 0;
 
+    const GITHUB_USERNAME = 'kilicosman';
+    const GITHUB_REPO = 'ortakhatim';
+    const GITHUB_FILE_PATH = 'data.txt';
+    const GITHUB_TOKEN = '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';
+
     function saveHatims() {
         const hatims = [];
-        document.querySelectorAll('.hatim').forEach((hatimDiv, index) => {
+        document.querySelectorAll('.hatim').forEach(hatimDiv => {
             const hatim = {
-                id: index,
                 date: hatimDiv.querySelector('input[type="date"]').value,
                 dua: hatimDiv.querySelector('.hatim-info label input[type="checkbox"]').checked,
                 cüzler: []
@@ -20,12 +24,44 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             hatims.push(hatim);
         });
-        localStorage.setItem('hatims', JSON.stringify(hatims));
+
+        const fileContent = btoa(JSON.stringify(hatims)); // Base64 encode
+        fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: 'Update hatim data',
+                content: fileContent,
+                sha: localStorage.getItem('githubFileSha') // dosyanın sha değerini kullanarak güncelleme yap
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.content && data.content.sha) {
+                localStorage.setItem('githubFileSha', data.content.sha);
+            }
+        })
+        .catch(error => console.error('Error updating file:', error));
     }
 
     function loadHatims() {
-        const hatims = JSON.parse(localStorage.getItem('hatims')) || [];
-        hatims.forEach(hatim => addHatim(false, hatim));
+        fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`, {
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.content) {
+                const hatims = JSON.parse(atob(data.content));
+                hatims.forEach(hatim => addHatim(false, hatim));
+                localStorage.setItem('githubFileSha', data.sha); // dosyanın sha değerini kaydet
+            }
+        })
+        .catch(error => console.error('Error loading file:', error));
     }
 
     function addHatim(save = true, hatimData = null) {

@@ -54,18 +54,18 @@ document.addEventListener('DOMContentLoaded', function() {
         duaLabel.appendChild(duaCheckbox);
         hatimInfo.appendChild(duaLabel);
 
-        hatimDiv.appendChild(hatimInfo);
-
         const removeButton = document.createElement('button');
         removeButton.className = 'remove-hatim';
-        removeButton.textContent = 'Sil';
+        removeButton.textContent = 'Hatimi Sil';
         removeButton.addEventListener('click', function() {
-            if (confirm('Emin misiniz?')) {
+            if (confirm('Bu hatimi silmeye emin misiniz?')) {
                 hatimDiv.remove();
                 saveHatims();
             }
         });
-        hatimDiv.appendChild(removeButton);
+        hatimInfo.appendChild(removeButton);
+
+        hatimDiv.appendChild(hatimInfo);
 
         const cuzList = document.createElement('ul');
         cuzList.className = 'cuz-list';

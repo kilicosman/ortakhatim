@@ -1,12 +1,25 @@
+// Google Sheets API'yi yükleme ve başlatma
+function initClient() {
+    gapi.client.init({
+        apiKey: '2ad0df329af97dfa346a29dcb710b26c75b25417',
+        clientId: '105663851095899620554',
+        discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+        scope: "https://www.googleapis.com/auth/spreadsheets"
+    }).then(function () {
+        loadHatims();
+    }, function(error) {
+        console.log(JSON.stringify(error, null, 2));
+    });
+}
+
+function handleClientLoad() {
+    gapi.load('client:auth2', initClient);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const hatimContainer = document.getElementById('hatimContainer');
     const addHatimButton = document.getElementById('addHatimButton');
     let hatimCount = 0;
-
-    const GITHUB_USERNAME = 'kilicosman';
-    const GITHUB_REPO = 'ortakhatim';
-    const GITHUB_FILE_PATH = 'data.txt';
-    const GITHUB_TOKEN = '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';
 
     function saveHatims() {
         const hatims = [];
@@ -25,43 +38,48 @@ document.addEventListener('DOMContentLoaded', function() {
             hatims.push(hatim);
         });
 
-        const fileContent = btoa(JSON.stringify(hatims)); // Base64 encode
-        fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message: 'Update hatim data',
-                content: fileContent,
-                sha: localStorage.getItem('githubFileSha') // dosyanın sha değerini kullanarak güncelleme yap
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.content && data.content.sha) {
-                localStorage.setItem('githubFileSha', data.content.sha);
+        const values = hatims.map(hatim => [
+            hatim.date,
+            hatim.dua ? 'Evet' : 'Hayır',
+            ...hatim.cüzler.map(cüz => `${cüz.isim}:${cüz.okundu ? 'Okundu' : 'Okunmadı'}`)
+        ]);
+
+        gapi.client.sheets.spreadsheets.values.update({
+            spreadsheetId: '18aUlGUz208BjXCG7FcId1fPkKu67RyT5bUot9nKwNzY',
+            range: 'Sheet1!A1',
+            valueInputOption: 'RAW',
+            resource: {
+                values: values
             }
-        })
-        .catch(error => console.error('Error updating file:', error));
+        }).then((response) => {
+            console.log(response);
+        }, (error) => {
+            console.error(error);
+        });
     }
 
     function loadHatims() {
-        fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`, {
-            headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`
+        gapi.client.sheets.spreadsheets.values.get({
+            spreadsheetId: 'SPREADSHEET_ID',
+            range: 'Sheet1!A1:Z1000',
+        }).then(function(response) {
+            const range = response.result;
+            if (range.values.length > 0) {
+                range.values.forEach((row, index) => {
+                    const hatim = {
+                        date: row[0],
+                        dua: row[1] === 'Evet',
+                        cüzler: row.slice(2).map(cüz => {
+                            const [isim, okundu] = cüz.split(':');
+                            return { isim, okundu: okundu === 'Okundu' };
+                        })
+                    };
+                    addHatim(false, hatim);
+                });
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.content) {
-                const hatims = JSON.parse(atob(data.content));
-                hatims.forEach(hatim => addHatim(false, hatim));
-                localStorage.setItem('githubFileSha', data.sha); // dosyanın sha değerini kaydet
-            }
-        })
-        .catch(error => console.error('Error loading file:', error));
+        }, function(response) {
+            console.log('Error: ' + response.result.error.message);
+        });
     }
 
     function addHatim(save = true, hatimData = null) {
@@ -153,6 +171,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addHatimButton.addEventListener('click', () => addHatim());
 
-    // Sayfa yüklendiğinde hatimleri yükle
-    loadHatims();
+    // Google API'yi başlat
+    handleClientLoad();
 });

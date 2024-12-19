@@ -3,7 +3,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const addHatimButton = document.getElementById('addHatimButton');
     let hatimCount = 0;
 
-    function addHatim() {
+    function saveHatims() {
+        const hatims = [];
+        document.querySelectorAll('.hatim').forEach(hatimDiv => {
+            const hatim = {
+                date: hatimDiv.querySelector('input[type="date"]').value,
+                dua: hatimDiv.querySelector('.hatim-info label input[type="checkbox"]').checked,
+                cüzler: []
+            };
+            hatimDiv.querySelectorAll('.cuz-item').forEach(cuzItem => {
+                hatim.cüzler.push({
+                    isim: cuzItem.querySelector('input[type="text"]').value,
+                    okundu: cuzItem.querySelector('input[type="checkbox"]').checked
+                });
+            });
+            hatims.push(hatim);
+        });
+        localStorage.setItem('hatims', JSON.stringify(hatims));
+    }
+
+    function loadHatims() {
+        const hatims = JSON.parse(localStorage.getItem('hatims')) || [];
+        hatims.forEach(hatim => addHatim(false, hatim));
+    }
+
+    function addHatim(save = true, hatimData = null) {
         hatimCount++;
         const hatimDiv = document.createElement('div');
         hatimDiv.className = 'hatim';
@@ -32,6 +56,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         hatimDiv.appendChild(hatimInfo);
 
+        const removeButton = document.createElement('button');
+        removeButton.className = 'remove-hatim';
+        removeButton.textContent = 'Sil';
+        removeButton.addEventListener('click', function() {
+            if (confirm('Emin misiniz?')) {
+                hatimDiv.remove();
+                saveHatims();
+            }
+        });
+        hatimDiv.appendChild(removeButton);
+
         const cuzList = document.createElement('ul');
         cuzList.className = 'cuz-list';
 
@@ -59,10 +94,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
         hatimDiv.appendChild(cuzList);
         hatimContainer.insertBefore(hatimDiv, hatimContainer.firstChild);
+
+        if (hatimData) {
+            dateInput.value = hatimData.date;
+            duaCheckbox.checked = hatimData.dua;
+            hatimData.cüzler.forEach((cüz, index) => {
+                cuzList.children[index].querySelector('input[type="text"]').value = cüz.isim;
+                cuzList.children[index].querySelector('input[type="checkbox"]').checked = cüz.okundu;
+            });
+        }
+
+        if (save) {
+            saveHatims();
+        }
     }
 
-    addHatimButton.addEventListener('click', addHatim);
+    addHatimButton.addEventListener('click', () => addHatim());
 
-    // Sayfa yüklendiğinde ilk hatimi ekle
-    addHatim();
+    // Sayfa yüklendiğinde hatimleri yükle
+    loadHatims();
 });

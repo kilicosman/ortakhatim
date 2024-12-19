@@ -26,6 +26,23 @@ h1 {
     margin-bottom: 20px;
 }
 
+button {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
 .hatim-container {
     margin-top: 20px;
 }
@@ -40,14 +57,28 @@ h1 {
     margin-bottom: 10px;
 }
 
-.hatim input[type="date"] {
-    display: block;
-    margin: 0 auto 20px auto;
+.hatim .hatim-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.hatim .hatim-info span {
+    font-size: 16px;
+    color: #333;
+}
+
+.hatim .hatim-info input[type="date"] {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
     color: #333;
+}
+
+.hatim .hatim-info label {
+    margin-left: 10px;
 }
 
 .cuz-list {
@@ -97,5 +128,15 @@ h1 {
 
     .cuz-item label {
         text-align: left;
+    }
+
+    .hatim .hatim-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .hatim .hatim-info span,
+    .hatim .hatim-info input[type="date"] {
+        margin-bottom: 10px;
     }
 }

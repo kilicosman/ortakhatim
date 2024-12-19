@@ -3,11 +3,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const addHatimButton = document.getElementById('addHatimButton');
     let hatimCount = 0;
 
-    // Verileri yerel depolamaya kaydetme işlevi
     function saveHatims() {
         const hatims = [];
-        document.querySelectorAll('.hatim').forEach(hatimDiv => {
+        document.querySelectorAll('.hatim').forEach((hatimDiv, index) => {
             const hatim = {
+                id: index,
                 date: hatimDiv.querySelector('input[type="date"]').value,
                 dua: hatimDiv.querySelector('.hatim-info label input[type="checkbox"]').checked,
                 cüzler: []
@@ -23,13 +23,11 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('hatims', JSON.stringify(hatims));
     }
 
-    // Yerel depolamadan verileri yükleme işlevi
     function loadHatims() {
         const hatims = JSON.parse(localStorage.getItem('hatims')) || [];
         hatims.forEach(hatim => addHatim(false, hatim));
     }
 
-    // Yeni hatim ekleme işlevi
     function addHatim(save = true, hatimData = null) {
         hatimCount++;
         const hatimDiv = document.createElement('div');
@@ -106,6 +104,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 cuzList.children[index].querySelector('input[type="checkbox"]').checked = cüz.okundu;
             });
         }
+
+        // Her cüz itemine değişiklikleri kaydetmek için olay dinleyicisi ekleyin
+        cuzList.querySelectorAll('input[type="text"], input[type="checkbox"]').forEach(input => {
+            input.addEventListener('change', saveHatims);
+        });
 
         if (save) {
             saveHatims();

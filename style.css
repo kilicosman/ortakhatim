@@ -2,7 +2,7 @@ body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #eef2f3;
+    background-color: #f0f2f5;
     color: #333;
     display: flex;
     justify-content: center;
@@ -16,7 +16,7 @@ body {
     background: #fff;
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    border-radius: 10px;
     margin-top: 20px;
 }
 
@@ -67,7 +67,7 @@ h1 {
 }
 
 .cuz-item label {
-    flex: 0 0 50px;
+    flex: 0 0 60px;
     margin-right: 10px;
     text-align: right;
 }

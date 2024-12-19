@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function() {
     const hatimContainer = document.getElementById('hatimContainer');
 
@@ -10,6 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const hatimTitle = document.createElement('h2');
         hatimTitle.textContent = `Hatim ${h}`;
         hatimDiv.appendChild(hatimTitle);
+
+        const dateInput = document.createElement('input');
+        dateInput.type = 'date';
+        hatimDiv.appendChild(dateInput);
 
         const cuzList = document.createElement('ul');
         cuzList.className = 'cuz-list';

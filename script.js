@@ -1,18 +1,36 @@
 document.addEventListener('DOMContentLoaded', function() {
     const hatimContainer = document.getElementById('hatimContainer');
+    const addHatimButton = document.getElementById('addHatimButton');
+    let hatimCount = 0;
 
-    // 3 hatim için bölümleri oluştur
-    for (let h = 1; h <= 3; h++) {
+    function addHatim() {
+        hatimCount++;
         const hatimDiv = document.createElement('div');
         hatimDiv.className = 'hatim';
 
         const hatimTitle = document.createElement('h2');
-        hatimTitle.textContent = `Hatim ${h}`;
+        hatimTitle.textContent = `Hatim ${hatimCount}`;
         hatimDiv.appendChild(hatimTitle);
+
+        const hatimInfo = document.createElement('div');
+        hatimInfo.className = 'hatim-info';
+
+        const dateLabel = document.createElement('span');
+        dateLabel.textContent = 'Son Bitirme Tarihi:';
+        hatimInfo.appendChild(dateLabel);
 
         const dateInput = document.createElement('input');
         dateInput.type = 'date';
-        hatimDiv.appendChild(dateInput);
+        hatimInfo.appendChild(dateInput);
+
+        const duaLabel = document.createElement('label');
+        duaLabel.textContent = 'Hatim Duası';
+        const duaCheckbox = document.createElement('input');
+        duaCheckbox.type = 'checkbox';
+        duaLabel.appendChild(duaCheckbox);
+        hatimInfo.appendChild(duaLabel);
+
+        hatimDiv.appendChild(hatimInfo);
 
         const cuzList = document.createElement('ul');
         cuzList.className = 'cuz-list';
@@ -40,6 +58,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         hatimDiv.appendChild(cuzList);
-        hatimContainer.appendChild(hatimDiv);
+        hatimContainer.insertBefore(hatimDiv, hatimContainer.firstChild);
     }
+
+    addHatimButton.addEventListener('click', addHatim);
+
+    // Sayfa yüklendiğinde ilk hatimi ekle
+    addHatim();
 });

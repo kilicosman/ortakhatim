@@ -1,33 +1,13 @@
-// Düzenlenen script.js
-// API anahtarları ve istemci kimliği güvenli bir şekilde yüklenecek
+// script.js
+
+import { createClient } from '@supabase/supabase-js';
+
+// Supabase bağlantısı
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const PASSWORD = 'vefa'; // Şifre sabit
-
-async function initClient() {
-    const API_KEY = process.env.API_KEY;
-    const CLIENT_ID = process.env.CLIENT_ID;
-    const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
-
-    if (!API_KEY || !CLIENT_ID || !SPREADSHEET_ID) {
-        console.error('Gerekli API bilgileri eksik. Lütfen .env dosyasını kontrol edin.');
-        alert('Sistem hatası. Lütfen teknik destekle iletişime geçin.');
-        return;
-    }
-
-    try {
-        await gapi.client.init({
-            apiKey: API_KEY,
-            clientId: CLIENT_ID,
-            discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
-            scope: "https://www.googleapis.com/auth/spreadsheets"
-        });
-        console.log('Google Sheets API initialized');
-        await loadHatims(SPREADSHEET_ID);
-    } catch (error) {
-        console.error('Google Sheets API başlatılamadı:', error);
-        alert('Google Sheets API bağlantısı başarısız. Lütfen daha sonra tekrar deneyin.');
-    }
-}
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginContainer = document.getElementById('loginContainer');
@@ -42,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (passwordInput.value === PASSWORD) {
             loginContainer.style.display = 'none';
             contentContainer.style.display = 'block';
-            gapi.load('client:auth2', initClient);
+            loadHatims();
         } else {
             alert('Yanlış şifre. Lütfen tekrar deneyin.');
         }
@@ -52,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addHatimButton.addEventListener('click', () => addHatim());
 
     // Hatim ekleme fonksiyonu
-    function addHatim(save = true, hatimData = null) {
+    async function addHatim(save = true, hatimData = null) {
         const hatimDiv = document.createElement('div');
         hatimDiv.className = 'hatim';
 
@@ -87,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         removeButton.addEventListener('click', () => {
             if (confirm('Bu hatimi silmek istediğinizden emin misiniz?')) {
                 hatimDiv.remove();
-                saveHatims();
+                if (save) saveHatims();
             }
         });
         hatimInfo.appendChild(removeButton);
@@ -136,9 +116,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if (save) saveHatims();
     }
 
-    // Hatimlerin kaydedilmesi
-    function saveHatims() {
-        // Kaydetme işlevi yazılabilir (Google Sheets ile bağlantı yapılmalı)
-        console.log('Hatimler kaydedildi.');
+    // Hatimlerin Supabase'e kaydedilmesi
+    async function saveHatims() {
+        const hatims = [];
+        document.querySelectorAll('.hatim').forEach(hatimDiv => {
+            const hatim = {
+                date: hatimDiv.querySelector('input[type="date"]').value,
+                dua: hatimDiv.querySelector('.hatim-info input[type="checkbox"]').checked,
+                cüzler: []
+            };
+            hatimDiv.querySelectorAll('.cuz-item').forEach(cuzItem => {
+                hatim.cüzler.push({
+                    isim: cuzItem.querySelector('input[type="text"]').value,
+                    okundu: cuzItem.querySelector('input[type="checkbox"]').checked
+                });
+            });
+            hatims.push(hatim);
+        });
+
+        const { error } = await supabase.from('hatimler').upsert(hatims);
+        if (error) {
+            console.error('Veri kaydedilemedi:', error);
+        } else {
+            console.log('Veri başarıyla kaydedildi.');
+        }
+    }
+
+    // Hatimlerin yüklenmesi
+    async function loadHatims() {
+        const { data, error } = await supabase.from('hatimler').select('*');
+        if (error) {
+            console.error('Veriler yüklenirken hata oluştu:', error);
+        } else if (data) {
+            data.forEach(hatim => addHatim(false, hatim));
+        }
     }
 });

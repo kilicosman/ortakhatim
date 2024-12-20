@@ -20,6 +20,11 @@ const hatimContainer = document.getElementById('hatimContainer');
 console.log('loginButton:', loginButton);
 console.log('passwordInput:', passwordInput);
 
+// Ensure elements are found
+if (!loginButton || !passwordInput || !loginContainer || !contentContainer) {
+    console.error('One or more elements not found. Check the HTML structure.');
+}
+
 // Giriş yapma işlemi
 loginButton.addEventListener('click', () => {
     console.log('Button clicked');

@@ -1,7 +1,7 @@
 const API_KEY = '2ad0df329af97dfa346a29dcb710b26c75b25417'; // Google Cloud Console'dan aldığınız API anahtarı
 const CLIENT_ID = '105663851095899620554'; // Google Cloud Console'dan aldığınız istemci kimliği
 const SPREADSHEET_ID = '18aUlGUz208BjXCG7FcId1fPkKu67RyT5bUot9nKwNzY'; // Google Sheet ID'niz
-const PASSWORD = 'hatim'; // Giriş şifresi
+const PASSWORD = 'vefa'; // Giriş şifresi
 
 function initClient() {
     gapi.client.init({
@@ -10,9 +10,10 @@ function initClient() {
         discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
         scope: "https://www.googleapis.com/auth/spreadsheets"
     }).then(function () {
+        console.log('Google Sheets API initialized');
         loadHatims();
     }, function(error) {
-        console.log(JSON.stringify(error, null, 2));
+        console.log('Error initializing Google Sheets API: ', JSON.stringify(error, null, 2));
     });
 }
 
@@ -70,9 +71,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 values: values
             }
         }).then((response) => {
-            console.log(response);
+            console.log('Data saved to Google Sheets:', response);
         }, (error) => {
-            console.error(error);
+            console.error('Error saving data to Google Sheets:', error);
         });
     }
 
@@ -82,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
             range: 'Sheet1!A1:Z1000',
         }).then(function(response) {
             const range = response.result;
-            if (range.values.length > 0) {
+            if (range.values && range.values.length > 0) {
                 range.values.forEach((row, index) => {
                     const hatim = {
                         date: row[0],
@@ -96,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         }, function(response) {
-            console.log('Error: ' + response.result.error.message);
+            console.log('Error loading data from Google Sheets:', response.result.error.message);
         });
     }
 
@@ -189,6 +190,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addHatimButton.addEventListener('click', () => addHatim());
 
-    // Google API'yi başlat
-    handleClientLoad();
 });

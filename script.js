@@ -118,21 +118,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Hatimlerin Supabase'e kaydedilmesi
     async function saveHatims() {
-        const hatims = [];
-        document.querySelectorAll('.hatim').forEach(hatimDiv => {
-            const hatim = {
-                date: hatimDiv.querySelector('input[type="date"]').value,
-                dua: hatimDiv.querySelector('.hatim-info input[type="checkbox"]').checked,
-                cüzler: []
+    const hatims = [];
+    document.querySelectorAll('.hatim').forEach(hatimDiv => {
+        const hatim = {
+            date: hatimDiv.querySelector('input[type="date"]').value,
+            dua: hatimDiv.querySelector('.hatim-info input[type="checkbox"]').checked,
+            cüzler: []
+        };
+
+        hatimDiv.querySelectorAll('.cuz-item').forEach((cuzItem, index) => {
+            const cüz = {
+                cuz_no: index + 1,
+                isim: cuzItem.querySelector('input[type="text"]').value,
+                okundu: cuzItem.querySelector('input[type="checkbox"]').checked
             };
-            hatimDiv.querySelectorAll('.cuz-item').forEach(cuzItem => {
-                hatim.cüzler.push({
-                    isim: cuzItem.querySelector('input[type="text"]').value,
-                    okundu: cuzItem.querySelector('input[type="checkbox"]').checked
-                });
-            });
-            hatims.push(hatim);
+            hatim.cüzler.push(cüz);
         });
+
+        hatims.push(hatim);
+    });
 
         const { error } = await supabase.from('hatimler').upsert(hatims);
         if (error) {
@@ -143,12 +147,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Hatimlerin yüklenmesi
-    async function loadHatims() {
-        const { data, error } = await supabase.from('hatimler').select('*');
-        if (error) {
-            console.error('Veriler yüklenirken hata oluştu:', error);
-        } else if (data) {
-            data.forEach(hatim => addHatim(false, hatim));
-        }
+   async function loadHatims() {
+    const { data, error } = await supabase.from('hatimler').select('*');
+    if (error) {
+        console.error('Veriler yüklenirken hata oluştu:', error);
+        return;
     }
+
+    if (data) {
+        data.forEach(hatim => addHatim(false, hatim));
+    }
+}
 });

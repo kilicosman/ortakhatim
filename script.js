@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.hatim').forEach(hatimDiv => {
             const hatim = {
                 date: hatimDiv.querySelector('input[type="date"]').value,
-                dua: hatimDiv.querySelector('.hatim-info label input[type="checkbox"]').checked,
+                dua: hatimDiv.querySelector('.hatim-info input[type="checkbox"]').checked,
                 cüzler: []
             };
             hatimDiv.querySelectorAll('.cuz-item').forEach(cuzItem => {
@@ -57,23 +57,21 @@ document.addEventListener('DOMContentLoaded', function() {
             hatims.push(hatim);
         });
 
-        const values = hatims.map(hatim => [
-            hatim.date,
-            hatim.dua ? 'Evet' : 'Hayır',
-            ...hatim.cüzler.map(cüz => `${cüz.isim}:${cüz.okundu ? 'Okundu' : 'Okunmadı'}`)
-        ]);
+        const values = [["Tarih", "Hatim Duası", "Cüzler"]];
+        hatims.forEach(hatim => {
+            const cüzler = hatim.cüzler.map(c => `${c.isim}:${c.okundu ? 'Okundu' : 'Okunmadı'}`).join('|');
+            values.push([hatim.date, hatim.dua ? 'Evet' : 'Hayır', cüzler]);
+        });
 
         gapi.client.sheets.spreadsheets.values.update({
             spreadsheetId: SPREADSHEET_ID,
             range: 'Sheet1!A1',
             valueInputOption: 'RAW',
-            resource: {
-                values: values
-            }
-        }).then((response) => {
-            console.log('Data saved to Google Sheets:', response);
-        }, (error) => {
-            console.error('Error saving data to Google Sheets:', error);
+            resource: { values: values }
+        }).then(response => {
+            console.log('Data saved successfully.', response);
+        }).catch(error => {
+            console.error('Error saving data:', error);
         });
     }
 
@@ -81,23 +79,19 @@ document.addEventListener('DOMContentLoaded', function() {
         gapi.client.sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
             range: 'Sheet1!A1:Z1000',
-        }).then(function(response) {
-            const range = response.result;
-            if (range.values && range.values.length > 0) {
-                range.values.forEach((row, index) => {
-                    const hatim = {
-                        date: row[0],
-                        dua: row[1] === 'Evet',
-                        cüzler: row.slice(2).map(cüz => {
-                            const [isim, okundu] = cüz.split(':');
-                            return { isim, okundu: okundu === 'Okundu' };
-                        })
-                    };
-                    addHatim(false, hatim);
+        }).then(response => {
+            const rows = response.result.values;
+            if (rows && rows.length > 1) {
+                rows.slice(1).forEach(row => {
+                    const cüzler = row[2]?.split('|').map(c => {
+                        const [isim, okundu] = c.split(':');
+                        return { isim, okundu: okundu === 'Okundu' };
+                    }) || [];
+                    addHatim(false, { date: row[0], dua: row[1] === 'Evet', cüzler });
                 });
             }
-        }, function(response) {
-            console.log('Error loading data from Google Sheets:', response.result.error.message);
+        }).catch(error => {
+            console.error('Error loading data:', error);
         });
     }
 
@@ -144,7 +138,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const cuzList = document.createElement('ul');
         cuzList.className = 'cuz-list';
 
-        // 30 cüz için liste elemanları oluştur
         for (let i = 1; i <= 30; i++) {
             const listItem = document.createElement('li');
             listItem.className = 'cuz-item';
@@ -178,7 +171,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Her cüz itemine değişiklikleri kaydetmek için olay dinleyicisi ekleyin
         cuzList.querySelectorAll('input[type="text"], input[type="checkbox"]').forEach(input => {
             input.addEventListener('change', saveHatims);
         });

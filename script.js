@@ -18,11 +18,15 @@ const hatimContainer = document.getElementById('hatimContainer');
 
 // Giriş yapma işlemi
 loginButton.addEventListener('click', () => {
+    console.log('Button clicked');
+    console.log('Entered Password:', passwordInput.value);
     if (passwordInput.value === PASSWORD) {
+        console.log('Password matched');
         loginContainer.style.display = 'none';
         contentContainer.style.display = 'block';
         loadHatims();
     } else {
+        console.log('Incorrect password');
         alert('Yanlış şifre. Lütfen tekrar deneyin.');
     }
 });

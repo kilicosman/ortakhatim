@@ -1,6 +1,7 @@
 const API_KEY = '2ad0df329af97dfa346a29dcb710b26c75b25417'; // Google Cloud Console'dan aldığınız API anahtarı
 const CLIENT_ID = '105663851095899620554'; // Google Cloud Console'dan aldığınız istemci kimliği
 const SPREADSHEET_ID = '18aUlGUz208BjXCG7FcId1fPkKu67RyT5bUot9nKwNzY'; // Google Sheet ID'niz
+const PASSWORD = 'hatim'; // Giriş şifresi
 
 function initClient() {
     gapi.client.init({
@@ -20,9 +21,23 @@ function handleClientLoad() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    const loginContainer = document.getElementById('loginContainer');
+    const contentContainer = document.getElementById('contentContainer');
+    const passwordInput = document.getElementById('passwordInput');
+    const loginButton = document.getElementById('loginButton');
     const hatimContainer = document.getElementById('hatimContainer');
     const addHatimButton = document.getElementById('addHatimButton');
     let hatimCount = 0;
+
+    loginButton.addEventListener('click', function() {
+        if (passwordInput.value === PASSWORD) {
+            loginContainer.style.display = 'none';
+            contentContainer.style.display = 'block';
+            handleClientLoad();
+        } else {
+            alert('Yanlış şifre. Lütfen tekrar deneyin.');
+        }
+    });
 
     function saveHatims() {
         const hatims = [];

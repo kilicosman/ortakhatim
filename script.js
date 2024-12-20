@@ -1,8 +1,11 @@
-// Google Sheets API'yi yükleme ve başlatma
+const API_KEY = '2ad0df329af97dfa346a29dcb710b26c75b25417'; // Google Cloud Console'dan aldığınız API anahtarı
+const CLIENT_ID = '105663851095899620554'; // Google Cloud Console'dan aldığınız istemci kimliği
+const SPREADSHEET_ID = '18aUlGUz208BjXCG7FcId1fPkKu67RyT5bUot9nKwNzY'; // Google Sheet ID'niz
+
 function initClient() {
     gapi.client.init({
-        apiKey: '2ad0df329af97dfa346a29dcb710b26c75b25417',
-        clientId: '105663851095899620554',
+        apiKey: API_KEY,
+        clientId: CLIENT_ID,
         discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
         scope: "https://www.googleapis.com/auth/spreadsheets"
     }).then(function () {
@@ -45,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ]);
 
         gapi.client.sheets.spreadsheets.values.update({
-            spreadsheetId: '18aUlGUz208BjXCG7FcId1fPkKu67RyT5bUot9nKwNzY',
+            spreadsheetId: SPREADSHEET_ID,
             range: 'Sheet1!A1',
             valueInputOption: 'RAW',
             resource: {
@@ -60,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function loadHatims() {
         gapi.client.sheets.spreadsheets.values.get({
-            spreadsheetId: 'SPREADSHEET_ID',
+            spreadsheetId: SPREADSHEET_ID,
             range: 'Sheet1!A1:Z1000',
         }).then(function(response) {
             const range = response.result;

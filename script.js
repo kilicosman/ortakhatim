@@ -12,7 +12,7 @@ const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
 const passwordInput = document.getElementById('passwordInput');
-const loginButton = document.getElementById('loginButton');
+const loginButton = document.getElementById('loginButton'); // loginButton elementini doğru seçtiğimizden emin olun
 const addHatimButton = document.getElementById('addHatimButton');
 const hatimContainer = document.getElementById('hatimContainer');
 

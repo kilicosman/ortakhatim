@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase bağlantısı
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_URL = 'your-supabase-url'; // .env dosyasından alınacak
+const SUPABASE_ANON_KEY = 'your-anon-key'; // .env dosyasından alınacak
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Şifre ve diğer sabitler
@@ -12,46 +12,145 @@ const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
 const passwordInput = document.getElementById('passwordInput');
-// ... diğer elemanlar
+const loginButton = document.getElementById('loginButton');
+const addHatimButton = document.getElementById('addHatimButton');
+const hatimContainer = document.getElementById('hatimContainer');
 
 // Giriş yapma işlemi
 loginButton.addEventListener('click', () => {
-  // ...
+    if (passwordInput.value === PASSWORD) {
+        loginContainer.style.display = 'none';
+        contentContainer.style.display = 'block';
+        loadHatims();
+    } else {
+        alert('Yanlış şifre. Lütfen tekrar deneyin.');
+    }
 });
 
 // Yeni hatim ekleme
 addHatimButton.addEventListener('click', () => addHatim());
 
 async function addHatim(save = true, hatimData = null) {
-  // Hatim oluşturma işlemleri (önceki cevapta olduğu gibi)
+    const hatimDiv = document.createElement('div');
+    hatimDiv.className = 'hatim';
 
-  // Cüzler için ayrı bir dizi oluştur
-  const cüzler = [];
-  // ... (cüz bilgilerini cüzler dizisine ekle)
+    const hatimTitle = document.createElement('h2');
+    hatimTitle.textContent = `Hatim ${hatimContainer.children.length + 1}`;
+    hatimDiv.appendChild(hatimTitle);
 
-  // Hatimleri ve cüzleri kaydet
-  const { data: hatimData, error: hatimError } = await supabase.from('hatimler').insert([hatim], { returning: 'minimal' });
-  const { error: cüzError } = await supabase.from('cüzler').insert(cüzler);
+    const hatimInfo = document.createElement('div');
+    hatimInfo.className = 'hatim-info';
 
-  // Hata kontrolü
-  if (hatimError || cüzError) {
-    console.error('Veri kaydedilemedi:', hatimError || cüzError);
-  } else {
-    console.log('Veri başarıyla kaydedildi.');
-  }
+    const dateLabel = document.createElement('span');
+    dateLabel.textContent = 'Son Bitirme Tarihi:';
+    hatimInfo.appendChild(dateLabel);
+
+    const dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    hatimInfo.appendChild(dateInput);
+
+    const duaLabel = document.createElement('label');
+    duaLabel.textContent = 'Hatim Duası';
+    const duaCheckbox = document.createElement('input');
+    duaCheckbox.type = 'checkbox';
+    duaLabel.appendChild(duaCheckbox);
+    hatimInfo.appendChild(duaLabel);
+
+    const removeButton = document.createElement('button');
+    removeButton.className = 'remove-hatim';
+    removeButton.textContent = 'Hatimi Sil';
+    removeButton.addEventListener('click', () => {
+        if (confirm('Bu hatimi silmeye emin misiniz?')) {
+            hatimDiv.remove();
+            saveHatims();
+        }
+    });
+    hatimInfo.appendChild(removeButton);
+
+    hatimDiv.appendChild(hatimInfo);
+
+    const cuzList = document.createElement('ul');
+    cuzList.className = 'cuz-list';
+
+    for (let i = 1; i <= 30; i++) {
+        const listItem = document.createElement('li');
+        listItem.className = 'cuz-item';
+
+        const label = document.createElement('label');
+        label.textContent = `Cüz ${i}: `;
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'İsim yazınız';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+
+        listItem.appendChild(label);
+        listItem.appendChild(input);
+        listItem.appendChild(checkbox);
+
+        cuzList.appendChild(listItem);
+    }
+
+    hatimDiv.appendChild(cuzList);
+    hatimContainer.insertBefore(hatimDiv, hatimContainer.firstChild);
+
+    if (hatimData) {
+        dateInput.value = hatimData.date;
+        duaCheckbox.checked = hatimData.dua;
+        hatimData.cüzler.forEach((cüz, index) => {
+            cuzList.children[index].querySelector('input[type="text"]').value = cüz.isim;
+            cuzList.children[index].querySelector('input[type="checkbox"]').checked = cüz.okundu;
+        });
+    }
+
+    cuzList.querySelectorAll('input[type="text"], input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', saveHatims);
+    });
+
+    if (save) {
+        await saveHatims();
+    }
+}
+
+async function saveHatims() {
+    const hatims = [];
+    document.querySelectorAll('.hatim').forEach(hatimDiv => {
+        const hatim = {
+            date: hatimDiv.querySelector('input[type="date"]').value,
+            dua: hatimDiv.querySelector('.hatim-info input[type="checkbox"]').checked,
+            cüzler: []
+        };
+        hatimDiv.querySelectorAll('.cuz-item').forEach(cuzItem => {
+            hatim.cüzler.push({
+                isim: cuzItem.querySelector('input[type="text"]').value,
+                okundu: cuzItem.querySelector('input[type="checkbox"]').checked
+            });
+        });
+        hatims.push(hatim);
+    });
+
+    const { data, error } = await supabase.from('hatimler').insert(hatims, { returning: 'minimal' });
+    if (error) {
+        console.error('Veri kaydedilemedi:', error);
+    } else {
+        console.log('Veri başarıyla kaydedildi.');
+    }
 }
 
 async function loadHatims() {
-  // Hatimleri ve cüzleri ilişkilendirerek getir
-  const { data, error } = await supabase
-    .from('hatimler')
-    .select('*')
-    .eager('cüzler(*)');
+    const { data, error } = await supabase.from('hatimler').select('*').eager('cüzler(*)');
+    if (error) {
+        console.error('Veriler yüklenirken hata oluştu:', error);
+        return;
+    }
 
-  if (error) {
-    console.error('Veriler yüklenirken hata oluştu:', error);
-    return;
-  }
-
-  // Verileri arayüze ekle (önceki kodda olduğu gibi)
+    data.forEach(row => {
+        const cüzler = row.cüzler.map(c => ({
+            isim: c.isim,
+            okundu: c.okundu
+        }));
+        addHatim(false, { date: row.date, dua: row.dua, cüzler });
+    });
 }

@@ -51,6 +51,11 @@ button:hover {
     background-color: #45a049;
 }
 
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
 .hatim-container {
     margin-top: 20px;
 }

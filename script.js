@@ -70,8 +70,11 @@ document.addEventListener('DOMContentLoaded', function() {
             resource: { values: values }
         }).then(response => {
             console.log('Data saved successfully.', response);
-        }).catch(error => {
-            console.error('Error saving data:', error);
+        }).catch (error) {
+    console.error('Veri alırken bir hata oluştu:', error);
+    alert('Üzgünüz, şu anda veriler yüklenemiyor. Lütfen daha sonra tekrar deneyin.');
+    // Hata raporlama servisine gönder
+    sendErrorReport(error);
         });
     }
 

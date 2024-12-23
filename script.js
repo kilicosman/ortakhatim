@@ -77,8 +77,11 @@ function createHatimCard(hatim) {
 
 // Yeni hatim ekleme işlemi
 async function addHatim(hatimData = null) {
-    const hatimCard = createHatimCard(hatimData);
-    if (!hatimData) await saveHatim(hatimCard);
+    if (hatimData) {
+        const hatimCard = createHatimCard(hatimData);
+        await saveHatim(hatimCard);
+        hatimContainer.querySelector('p')?.remove(); // Remove the warning if it exists
+    }
 }
 
 // Yeni hatimi kaydetme

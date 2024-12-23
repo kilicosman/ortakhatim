@@ -3,8 +3,8 @@ const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYXdneG56bWhoaGZybGFtYnpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2ODgzNjYsImV4cCI6MjA1MDI2NDM2Nn0.clUilHcXBAU3MCttysmdrIgudfgOPZJV-nSIWVWH-Eg'; // API anahtarınızı buraya ekleyin
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+
 const PASSWORD = 'vefa';
-const RESET_PASSWORD = 'admin';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
 const passwordInput = document.getElementById('passwordInput');
@@ -12,7 +12,6 @@ const loginButton = document.getElementById('loginButton');
 const errorMessage = document.getElementById('errorMessage');
 const hatimContainer = document.getElementById('hatimContainer');
 const addHatimButton = document.getElementById('addHatimButton');
-const resetButton = document.createElement('button');
 
 // Şifre kontrolü
 loginButton.addEventListener('click', async () => {
@@ -32,11 +31,9 @@ loginButton.addEventListener('click', async () => {
 // Yeni hatim ekleme butonu
 addHatimButton.addEventListener('click', async () => {
     const hatimler = await loadHatims();
-    let hatimCounter = parseInt(localStorage.getItem('hatimCounter')) || 0;
-    const newHatimId = hatimCounter + 1;
+    const newHatimId = hatimler.length + 1;
     const newHatim = { id: newHatimId, date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({isim: '', okundu: false}) };
     await addHatim(newHatim);
-    localStorage.setItem('hatimCounter', newHatimId.toString()); // Update the counter value
 });
 
 // Hatim yükleme
@@ -47,7 +44,6 @@ async function loadHatims() {
             .select('*')
             .order('id', { ascending: true });
         if (error) throw error;
-        hatimContainer.innerHTML = ''; // Clear existing hatims to avoid duplication
         data.forEach(hatim => addHatim(hatim));
         return data;
     } catch (error) {
@@ -59,7 +55,6 @@ async function loadHatims() {
 function createHatimCard(hatim) {
     const hatimDiv = document.createElement('div');
     hatimDiv.className = 'hatim';
-    hatimDiv.setAttribute('data-id', hatim.id);
     hatimDiv.innerHTML = `
         <h2>Hatim ${hatim.id}</h2>
         <h3>Hatim Duası</h3>
@@ -174,34 +169,3 @@ document.addEventListener('click', async function (event) {
         }
     }
 });
-
-// Reset button functionality
-resetButton.textContent = 'Verileri Sıfırla';
-resetButton.style.position = 'fixed';
-resetButton.style.bottom = '10px';
-resetButton.style.right = '10px';
-document.body.appendChild(resetButton);
-
-resetButton.addEventListener('click', () => {
-    const resetPassword = prompt('Şifreyi girin:');
-    if (resetPassword === RESET_PASSWORD) {
-        resetData();
-    } else {
-        alert('Yanlış şifre.');
-    }
-});
-
-async function resetData() {
-    try {
-        const { error } = await supabase
-            .from('hatimler')
-            .delete()
-            .not('id', 'eq', 0); // Delete all hatimler
-        if (error) throw error;
-        alert('Veriler sıfırlandı.');
-        localStorage.setItem('hatimCounter', '0'); // Reset the Hatim counter
-        location.reload(); // Reload the page to reflect changes
-    } catch (error) {
-        console.error('Veriler sıfırlanamadı:', error.message);
-    }
-}

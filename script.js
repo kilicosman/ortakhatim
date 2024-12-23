@@ -3,7 +3,6 @@ const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYXdneG56bWhoaGZybGFtYnpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2ODgzNjYsImV4cCI6MjA1MDI2NDM2Nn0.clUilHcXBAU3MCttysmdrIgudfgOPZJV-nSIWVWH-Eg'; // API anahtarınızı buraya ekleyin
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-
 const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
@@ -13,12 +12,15 @@ const errorMessage = document.getElementById('errorMessage');
 const hatimContainer = document.getElementById('hatimContainer');
 const addHatimButton = document.getElementById('addHatimButton');
 
+let hatimCount = 0; // Hatim sayısını izlemek için global bir sayaç
+
 // Şifre kontrolü
 loginButton.addEventListener('click', async () => {
     if (passwordInput.value === PASSWORD) {
         loginContainer.style.display = 'none';
         contentContainer.style.display = 'block';
         const hatimler = await loadHatims();
+        hatimCount = hatimler.length; // Mevcut hatim sayısını güncelle
         if (!hatimler || hatimler.length === 0) {
             addHatimButton.style.display = 'block';
             hatimContainer.innerHTML = '<p>Henüz bir hatim eklenmedi. Yeni bir hatim ekleyin!</p>';
@@ -30,23 +32,19 @@ loginButton.addEventListener('click', async () => {
 
 // Yeni hatim ekleme butonu
 addHatimButton.addEventListener('click', () => {
-    const newHatim = { date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({isim: '', okundu: false}) };
-    addHatim(newHatim);
+    hatimContainer.innerHTML = ''; // Eski mesajı temizle
+    addHatim();
 });
 
 // Hatim yükleme
 async function loadHatims() {
-    try {
-        const { data, error } = await supabase
-            .from('hatimler')
-            .select('*')
-            .order('id', { ascending: false });
-        if (error) throw error;
-        data.forEach(hatim => addHatim(hatim));
-        return data;
-    } catch (error) {
+    const { data, error } = await supabase.from('hatimler').select('*');
+    if (error) {
         console.error('Hatim yüklenemedi:', error.message);
+        return [];
     }
+    data.forEach(hatim => addHatim(hatim));
+    return data;
 }
 
 // Yeni hatim kartı oluşturma
@@ -54,27 +52,26 @@ function createHatimCard(hatim) {
     const hatimDiv = document.createElement('div');
     hatimDiv.className = 'hatim';
     hatimDiv.innerHTML = `
-        <h2>Hatim ${hatim?.id || 'Yeni'}</h2>
-        <button class="delete-hatim">Sil</button>
-        <input type="date" value="${hatim?.date || ''}">
-        <button class="save-date">Kaydet</button>
+        <h2>Hatim ${hatim?.id ? `Hatim ${hatimCount + 1}` : 'Yeni'}</h2>
+        <input type="date" value="${hatim?.date || ''}" onchange="updateDate(this, ${hatim?.id || 'null'})">
         <ul class="cuz-list">
             ${Array.from({ length: 30 }, (_, i) => `
                 <li class="cuz-item">
+                    <span>Okundu</span>
+                    <input type="checkbox" ${hatim?.cüzler?.[i]?.okundu ? 'checked' : ''} onchange="updateCuzStatus(this, ${hatim?.id || 'null'}, ${i + 1})">
                     <span>Cüz ${i + 1}</span>
-                    <input type="text" placeholder="İsim yazınız" value="${hatim?.cuzler?.[i]?.isim || ''}">
-                    <button class="save-cuz">Kaydet</button>
-                    <input type="checkbox" ${hatim?.cuzler?.[i]?.okundu ? 'checked' : ''}>
+                    <input type="text" placeholder="İsim yazınız" style="width: 150px;" value="${hatim?.cüzler?.[i]?.isim || ''}" onchange="updateCuzName(this, ${hatim?.id || 'null'}, ${i + 1})">
                 </li>
             `).join('')}
         </ul>
+        <button onclick="deleteHatim(${hatim?.id || 'null'})">Hatimi Sil</button>
     `;
-    hatimContainer.prepend(hatimDiv);
-    return hatimDiv; // DOM öğesini döndür
+    hatimContainer.appendChild(hatimDiv);
 }
 
 // Yeni hatim ekleme işlemi
 function addHatim(hatimData = null) {
+    hatimCount++; // Yeni hatim eklendiğinde sayaç artırılır
     const hatimCard = createHatimCard(hatimData);
     if (!hatimData) saveHatim(hatimCard);
 }
@@ -82,76 +79,72 @@ function addHatim(hatimData = null) {
 // Yeni hatimi kaydetme
 async function saveHatim(hatimCard) {
     const date = hatimCard.querySelector('input[type="date"]').value;
-
-    // Tarih formatını kontrol et
-    if (!date || isNaN(Date.parse(date))) {
-        console.error('Geçersiz tarih değeri.');
-        return;
-    }
-
-    const cuzler = Array.from(hatimCard.querySelectorAll('.cuz-item')).map(item => ({
+    const cüzler = Array.from(hatimCard.querySelectorAll('.cuz-item')).map(item => ({
         isim: item.querySelector('input[type="text"]').value,
         okundu: item.querySelector('input[type="checkbox"]').checked
     }));
-
-    // Cüzler ve date verilerini kontrol etmek
-    console.log({ date, cuzler });
-
-    const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
-    if (error) console.error('Kaydetme hatası:', error.message);
-}
-
-// Hatim silme işlemi
-async function deleteHatim(hatimId) {
-    const { error } = await supabase.from('hatimler').delete().eq('id', hatimId);
+    const { error } = await supabase.from('hatimler').insert([{ date, cüzler }]);
     if (error) {
-        console.error('Silme hatası:', error.message);
+        showMessage('Kaydetme hatası: ' + error.message, 'error');
     } else {
-        document.querySelector(`.hatim[data-id="${hatimId}"]`).remove();
+        showMessage('Bilgileriniz kaydedildi.', 'success');
     }
 }
 
-// Event listener to save date
-document.addEventListener('click', async function (event) {
-    if (event.target.classList.contains('save-date')) {
-        const hatimCard = event.target.closest('.hatim');
-        await saveHatim(hatimCard);
+// Cüz durumu güncelleme
+async function updateCuzStatus(checkbox, hatimId, cuzNo) {
+    const { error } = await supabase.from('hatimler').update({
+        [`cüzler.${cuzNo - 1}.okundu`]: checkbox.checked
+    }).eq('id', hatimId);
+    if (error) {
+        showMessage('Güncelleme hatası: ' + error.message, 'error');
+    } else {
+        showMessage('Cüz durumu güncellendi.', 'success');
     }
-});
+}
 
-// Event listener to save each cüz
-document.addEventListener('click', async function (event) {
-    if (event.target.classList.contains('save-cuz')) {
-        const cuzItem = event.target.closest('.cuz-item');
-        const hatimCard = event.target.closest('.hatim');
-        const date = hatimCard.querySelector('input[type="date"]').value;
+// Cüz adı güncelleme
+async function updateCuzName(input, hatimId, cuzNo) {
+    const { error } = await supabase.from('hatimler').update({
+        [`cüzler.${cuzNo - 1}.isim`]: input.value
+    }).eq('id', hatimId);
+    if (error) {
+        showMessage('Güncelleme hatası: ' + error.message, 'error');
+    } else {
+        showMessage('Cüz adı güncellendi.', 'success');
+    }
+}
 
-        // Tarih formatını kontrol et
-        if (!date || isNaN(Date.parse(date))) {
-            console.error('Geçersiz tarih değeri.');
-            return;
+// Tarih güncelleme
+async function updateDate(input, hatimId) {
+    const { error } = await supabase.from('hatimler').update({
+        date: input.value
+    }).eq('id', hatimId);
+    if (error) {
+        showMessage('Güncelleme hatası: ' + error.message, 'error');
+    } else {
+        showMessage('Tarih güncellendi.', 'success');
+    }
+}
+
+// Hatim silme
+async function deleteHatim(hatimId) {
+    if (confirm('Bu hatimi silmek istediğinizden emin misiniz?')) {
+        const { error } = await supabase.from('hatimler').delete().eq('id', hatimId);
+        if (error) {
+            showMessage('Silme hatası: ' + error.message, 'error');
+        } else {
+            showMessage('Hatim başarıyla silindi.', 'success');
+            loadHatims();
         }
-
-        const cuzler = Array.from(hatimCard.querySelectorAll('.cuz-item')).map(item => ({
-            isim: item.querySelector('input[type="text"]').value,
-            okundu: item.querySelector('input[type="checkbox"]').checked
-        }));
-
-        // Cüzler ve date verilerini kontrol etmek
-        console.log({ date, cuzler });
-
-        const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
-        if (error) console.error('Kaydetme hatası:', error.message);
     }
-});
+}
 
-// Event listener to delete Hatim with confirmation
-document.addEventListener('click', async function (event) {
-    if (event.target.classList.contains('delete-hatim')) {
-        const hatimCard = event.target.closest('.hatim');
-        const hatimId = hatimCard.getAttribute('data-id');
-        if (confirm('Bu hatimi silmek istediğinizden emin misiniz?')) {
-            await deleteHatim(hatimId);
-        }
-    }
-});
+// Bilgi mesajı gösterme
+function showMessage(message, type) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message ${type}`;
+    msgDiv.textContent = message;
+    document.body.appendChild(msgDiv);
+    setTimeout(() => msgDiv.remove(), 4000);
+}

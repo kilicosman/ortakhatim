@@ -81,6 +81,10 @@ async function saveHatim(hatimCard) {
         isim: item.querySelector('input[type="text"]').value,
         okundu: item.querySelector('input[type="checkbox"]').checked
     }));
+
+    // Cüzler ve date verilerini kontrol etmek
+    console.log({ date, cüzler });
+    
     const { error } = await supabase.from('hatimler').insert([{ date, cüzler }]);
     if (error) console.error('Kaydetme hatası:', error.message);
 }

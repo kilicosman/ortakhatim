@@ -1,8 +1,13 @@
-const supabase = supabase.createClient(
-    'https://xgawgxnzmhhhfrlambzq.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-);
 
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = 'https://xgawgxnzmhhhfrlambzq.supabase.co'
+const supabaseKey = process.env.SUPABASE_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+const supabaseUrl = 'https://xgawgxnzmhhhfrlambzq.supabase.co'
+const supabaseKey = process.env.SUPABASE_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
 const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Doğru API anahtarınızı buraya ekleyin
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

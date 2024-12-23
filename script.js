@@ -3,7 +3,6 @@ const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYXdneG56bWhoaGZybGFtYnpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2ODgzNjYsImV4cCI6MjA1MDI2NDM2Nn0.clUilHcXBAU3MCttysmdrIgudfgOPZJV-nSIWVWH-Eg'; // API anahtarınızı buraya ekleyin
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-
 const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
@@ -30,7 +29,9 @@ loginButton.addEventListener('click', async () => {
 
 // Yeni hatim ekleme butonu
 addHatimButton.addEventListener('click', async () => {
-    const newHatim = { date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({isim: '', okundu: false}) };
+    const hatimler = await loadHatims();
+    const newHatimId = hatimler.length + 1;
+    const newHatim = { id: newHatimId, date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({isim: '', okundu: false}) };
     await addHatim(newHatim);
 });
 
@@ -40,7 +41,7 @@ async function loadHatims() {
         const { data, error } = await supabase
             .from('hatimler')
             .select('*')
-            .order('id', { ascending: false });
+            .order('id', { ascending: true });
         if (error) throw error;
         data.forEach(hatim => addHatim(hatim));
         return data;
@@ -54,18 +55,18 @@ function createHatimCard(hatim) {
     const hatimDiv = document.createElement('div');
     hatimDiv.className = 'hatim';
     hatimDiv.innerHTML = `
-        <h2>Hatim ${hatim?.id || 1}</h2>
+        <h2>Hatim ${hatim.id}</h2>
         <h3>Hatim Duası</h3>
         <button class="delete-hatim">Sil</button>
-        <input type="date" value="${hatim?.date || ''}">
+        <input type="date" value="${hatim.date || ''}">
         <button class="save-date">Kaydet</button>
         <ul class="cuz-list">
             ${Array.from({ length: 30 }, (_, i) => `
                 <li class="cuz-item">
                     <span>Cüz ${i + 1}</span>
-                    <input type="text" placeholder="İsim yazınız" value="${hatim?.cuzler?.[i]?.isim || ''}" style="width: 100px;">
-                    <label>Okundu <input type="checkbox" ${hatim?.cuzler?.[i]?.okundu ? 'checked' : ''}></label>
+                    <input type="text" placeholder="İsim yazınız" value="${hatim.cuzler[i]?.isim || ''}" style="width: 100px;">
                     <button class="save-cuz">Kaydet</button>
+                    <label>Okundu <input type="checkbox" ${hatim.cuzler[i]?.okundu ? 'checked' : ''}></label>
                 </li>
             `).join('')}
         </ul>

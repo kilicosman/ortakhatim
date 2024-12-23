@@ -45,6 +45,7 @@ async function loadHatims() {
             .select('*')
             .order('id', { ascending: true });
         if (error) throw error;
+        hatimContainer.innerHTML = ''; // Clear existing hatims to avoid duplication
         data.forEach(hatim => addHatim(hatim));
         return data;
     } catch (error) {

@@ -53,16 +53,21 @@ function createHatimCard(hatim) {
     const hatimDiv = document.createElement('div');
     hatimDiv.className = 'hatim';
     hatimDiv.innerHTML = `
-        <h2>Hatim ${hatim?.id || 1}</h2>  <!-- Change 'Yeni' to '1' -->
+        <h2>Hatim ${hatim?.id || 1}</h2>
         <h3>Hatim Duası</h3>
         <button class="delete-hatim">Sil</button>
         <input type="date" value="${hatim?.date || ''}">
         <button class="save-date">Kaydet</button>
         <ul class="cuz-list">
+            <li>
+                <span>Cüz</span>
+                <span>İsim</span>
+                <span>Okundu</span>
+            </li>
             ${Array.from({ length: 30 }, (_, i) => `
                 <li class="cuz-item">
                     <span>Cüz ${i + 1}</span>
-                    <input type="text" placeholder="İsim yazınız" value="${hatim?.cuzler?.[i]?.isim || ''}">
+                    <input type="text" placeholder="İsim yazınız" value="${hatim?.cuzler?.[i]?.isim || ''}" style="width: 100px;">
                     <button class="save-cuz">Kaydet</button>
                     <input type="checkbox" ${hatim?.cuzler?.[i]?.okundu ? 'checked' : ''}>
                 </li>

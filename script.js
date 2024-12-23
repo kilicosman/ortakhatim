@@ -30,8 +30,8 @@ loginButton.addEventListener('click', async () => {
 
 // Yeni hatim ekleme butonu
 addHatimButton.addEventListener('click', () => {
-    hatimContainer.innerHTML = ''; // Eski mesajı temizle
-    addHatim();
+    const newHatim = { date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({isim: '', okundu: false}) };
+    addHatim(newHatim);
 });
 
 // Hatim yükleme
@@ -39,7 +39,8 @@ async function loadHatims() {
     try {
         const { data, error } = await supabase
             .from('hatimler')
-            .select('*');
+            .select('*')
+            .order('id', { ascending: false });
         if (error) throw error;
         data.forEach(hatim => addHatim(hatim));
         return data;
@@ -54,6 +55,7 @@ function createHatimCard(hatim) {
     hatimDiv.className = 'hatim';
     hatimDiv.innerHTML = `
         <h2>Hatim ${hatim?.id || 'Yeni'}</h2>
+        <button class="delete-hatim">Sil</button>
         <input type="date" value="${hatim?.date || ''}">
         <button class="save-date">Kaydet</button>
         <ul class="cuz-list">
@@ -67,7 +69,7 @@ function createHatimCard(hatim) {
             `).join('')}
         </ul>
     `;
-    hatimContainer.appendChild(hatimDiv);
+    hatimContainer.prepend(hatimDiv);
     return hatimDiv; // DOM öğesini döndür
 }
 
@@ -97,6 +99,16 @@ async function saveHatim(hatimCard) {
 
     const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
     if (error) console.error('Kaydetme hatası:', error.message);
+}
+
+// Hatim silme işlemi
+async function deleteHatim(hatimId) {
+    const { error } = await supabase.from('hatimler').delete().eq('id', hatimId);
+    if (error) {
+        console.error('Silme hatası:', error.message);
+    } else {
+        document.querySelector(`.hatim[data-id="${hatimId}"]`).remove();
+    }
 }
 
 // Event listener to save date
@@ -130,5 +142,16 @@ document.addEventListener('click', async function (event) {
 
         const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
         if (error) console.error('Kaydetme hatası:', error.message);
+    }
+});
+
+// Event listener to delete Hatim with confirmation
+document.addEventListener('click', async function (event) {
+    if (event.target.classList.contains('delete-hatim')) {
+        const hatimCard = event.target.closest('.hatim');
+        const hatimId = hatimCard.getAttribute('data-id');
+        if (confirm('Bu hatimi silmek istediğinizden emin misiniz?')) {
+            await deleteHatim(hatimId);
+        }
     }
 });

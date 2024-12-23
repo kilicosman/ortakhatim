@@ -4,6 +4,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 
+
 const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
@@ -55,11 +56,13 @@ function createHatimCard(hatim) {
     hatimDiv.innerHTML = `
         <h2>Hatim ${hatim?.id || 'Yeni'}</h2>
         <input type="date" value="${hatim?.date || ''}">
+        <button class="save-date">Kaydet</button>
         <ul class="cuz-list">
             ${Array.from({ length: 30 }, (_, i) => `
                 <li class="cuz-item">
                     <span>Cüz ${i + 1}</span>
                     <input type="text" placeholder="İsim yazınız" value="${hatim?.cuzler?.[i]?.isim || ''}">
+                    <button class="save-cuz">Kaydet</button>
                     <input type="checkbox" ${hatim?.cuzler?.[i]?.okundu ? 'checked' : ''}>
                 </li>
             `).join('')}
@@ -96,3 +99,37 @@ async function saveHatim(hatimCard) {
     const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
     if (error) console.error('Kaydetme hatası:', error.message);
 }
+
+// Event listener to save date
+document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('save-date')) {
+        const hatimCard = event.target.closest('.hatim');
+        saveHatim(hatimCard);
+    }
+});
+
+// Event listener to save each cüz
+document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('save-cuz')) {
+        const cuzItem = event.target.closest('.cuz-item');
+        const hatimCard = event.target.closest('.hatim');
+        const date = hatimCard.querySelector('input[type="date"]').value;
+
+        // Tarih formatını kontrol et
+        if (!date || isNaN(Date.parse(date))) {
+            console.error('Geçersiz tarih değeri.');
+            return;
+        }
+
+        const cuzler = Array.from(hatimCard.querySelectorAll('.cuz-item')).map(item => ({
+            isim: item.querySelector('input[type="text"]').value,
+            okundu: item.querySelector('input[type="checkbox"]').checked
+        }));
+
+        // Cüzler ve date verilerini kontrol etmek
+        console.log({ date, cuzler });
+
+        const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
+        if (error) console.error('Kaydetme hatası:', error.message);
+    }
+});

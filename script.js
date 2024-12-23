@@ -53,7 +53,7 @@ function createHatimCard(hatim) {
     const hatimDiv = document.createElement('div');
     hatimDiv.className = 'hatim';
     hatimDiv.innerHTML = `
-        <h2>Hatim ${hatim?.id || 'Yeni'}</h2>
+        <h2>Hatim ${hatim?.id || 1}</h2>  <!-- Change 'Yeni' to '1' -->
         <h3>Hatim Duası</h3>
         <button class="delete-hatim">Sil</button>
         <input type="date" value="${hatim?.date || ''}">
@@ -70,7 +70,7 @@ function createHatimCard(hatim) {
         </ul>
     `;
     hatimContainer.prepend(hatimDiv);
-    return hatimDiv; // DOM öğesini döndür
+    return hatimDiv;
 }
 
 // Yeni hatim ekleme işlemi

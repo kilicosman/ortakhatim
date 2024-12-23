@@ -3,7 +3,6 @@ const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYXdneG56bWhoaGZybGFtYnpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2ODgzNjYsImV4cCI6MjA1MDI2NDM2Nn0.clUilHcXBAU3MCttysmdrIgudfgOPZJV-nSIWVWH-Eg'; // API anahtarınızı buraya ekleyin
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-
 const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
@@ -29,9 +28,9 @@ loginButton.addEventListener('click', async () => {
 });
 
 // Yeni hatim ekleme butonu
-addHatimButton.addEventListener('click', () => {
+addHatimButton.addEventListener('click', async () => {
     const newHatim = { date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({isim: '', okundu: false}) };
-    addHatim(newHatim);
+    await addHatim(newHatim);
 });
 
 // Hatim yükleme
@@ -55,6 +54,7 @@ function createHatimCard(hatim) {
     hatimDiv.className = 'hatim';
     hatimDiv.innerHTML = `
         <h2>Hatim ${hatim?.id || 'Yeni'}</h2>
+        <h3>Hatim Duası</h3>
         <button class="delete-hatim">Sil</button>
         <input type="date" value="${hatim?.date || ''}">
         <button class="save-date">Kaydet</button>
@@ -74,9 +74,9 @@ function createHatimCard(hatim) {
 }
 
 // Yeni hatim ekleme işlemi
-function addHatim(hatimData = null) {
+async function addHatim(hatimData = null) {
     const hatimCard = createHatimCard(hatimData);
-    if (!hatimData) saveHatim(hatimCard);
+    if (!hatimData) await saveHatim(hatimCard);
 }
 
 // Yeni hatimi kaydetme
@@ -142,6 +142,14 @@ document.addEventListener('click', async function (event) {
 
         const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
         if (error) console.error('Kaydetme hatası:', error.message);
+    }
+});
+
+// Event listener to auto-save checkbox changes
+document.addEventListener('change', async function (event) {
+    if (event.target.type === 'checkbox') {
+        const hatimCard = event.target.closest('.hatim');
+        await saveHatim(hatimCard);
     }
 });
 

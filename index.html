@@ -1,8 +1,5 @@
 <!DOCTYPE html>
 <html lang="tr">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="script.js"></script>
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,9 +16,10 @@
     <div id="contentContainer" class="container" style="display: none;">
         <h1>Ortak Hatim</h1>
         <div id="hatimContainer" class="hatim-container"></div>
-        <button id="addHatimButton">Yeni Hatim Ekle</button>
+        <button id="addHatimButton" style="display:none;">Yeni Hatim Ekle</button>
     </div>
-    <script src="script.js" type="module"></script>
+    <!-- Supabase'i CDN ile dahil edin -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="script.js"></script>
 </body>
-
 </html>

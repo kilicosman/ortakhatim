@@ -35,13 +35,16 @@ addHatimButton.addEventListener('click', () => {
 
 // Hatim yükleme
 async function loadHatims() {
-    const { data, error } = await supabase.from('hatimler').select('*');
-    if (error) {
+    try {
+        const { data, error } = await supabase
+            .from('hatimler')
+            .select('*');
+        if (error) throw error;
+        data.forEach(hatim => addHatim(hatim));
+        return data;
+    } catch (error) {
         console.error('Hatim yüklenemedi:', error.message);
-        return [];
     }
-    data.forEach(hatim => addHatim(hatim));
-    return data;
 }
 
 // Yeni hatim kartı oluşturma

@@ -3,6 +3,7 @@ const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYXdneG56bWhoaGZybGFtYnpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2ODgzNjYsImV4cCI6MjA1MDI2NDM2Nn0.clUilHcXBAU3MCttysmdrIgudfgOPZJV-nSIWVWH-Eg'; // API anahtarınızı buraya ekleyin
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+
 const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
@@ -59,17 +60,12 @@ function createHatimCard(hatim) {
         <input type="date" value="${hatim?.date || ''}">
         <button class="save-date">Kaydet</button>
         <ul class="cuz-list">
-            <li>
-                <span>Cüz</span>
-                <span>İsim</span>
-                <span>Okundu</span>
-            </li>
             ${Array.from({ length: 30 }, (_, i) => `
                 <li class="cuz-item">
                     <span>Cüz ${i + 1}</span>
                     <input type="text" placeholder="İsim yazınız" value="${hatim?.cuzler?.[i]?.isim || ''}" style="width: 100px;">
+                    <label>Okundu <input type="checkbox" ${hatim?.cuzler?.[i]?.okundu ? 'checked' : ''}></label>
                     <button class="save-cuz">Kaydet</button>
-                    <input type="checkbox" ${hatim?.cuzler?.[i]?.okundu ? 'checked' : ''}>
                 </li>
             `).join('')}
         </ul>

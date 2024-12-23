@@ -65,6 +65,7 @@ function createHatimCard(hatim) {
         </ul>
     `;
     hatimContainer.appendChild(hatimDiv);
+    return hatimDiv; // DOM öğesini döndür
 }
 
 // Yeni hatim ekleme işlemi

@@ -58,8 +58,8 @@ function createHatimCard(hatim) {
             ${Array.from({ length: 30 }, (_, i) => `
                 <li class="cuz-item">
                     <span>Cüz ${i + 1}</span>
-                    <input type="text" placeholder="İsim yazınız" value="${hatim?.cüzler?.[i]?.isim || ''}">
-                    <input type="checkbox" ${hatim?.cüzler?.[i]?.okundu ? 'checked' : ''}>
+                    <input type="text" placeholder="İsim yazınız" value="${hatim?.cuzler?.[i]?.isim || ''}">
+                    <input type="checkbox" ${hatim?.cuzler?.[i]?.okundu ? 'checked' : ''}>
                 </li>
             `).join('')}
         </ul>
@@ -77,14 +77,14 @@ function addHatim(hatimData = null) {
 // Yeni hatimi kaydetme
 async function saveHatim(hatimCard) {
     const date = hatimCard.querySelector('input[type="date"]').value;
-    const cüzler = Array.from(hatimCard.querySelectorAll('.cuz-item')).map(item => ({
+    const cuzler = Array.from(hatimCard.querySelectorAll('.cuz-item')).map(item => ({
         isim: item.querySelector('input[type="text"]').value,
         okundu: item.querySelector('input[type="checkbox"]').checked
     }));
 
     // Cüzler ve date verilerini kontrol etmek
-    console.log({ date, cüzler });
+    console.log({ date, cuzler });
     
-    const { error } = await supabase.from('hatimler').insert([{ date, cüzler }]);
+    const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
     if (error) console.error('Kaydetme hatası:', error.message);
 }

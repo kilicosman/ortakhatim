@@ -4,6 +4,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const PASSWORD = 'vefa';
+const RESET_PASSWORD = 'admin';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
 const passwordInput = document.getElementById('passwordInput');
@@ -11,6 +12,7 @@ const loginButton = document.getElementById('loginButton');
 const errorMessage = document.getElementById('errorMessage');
 const hatimContainer = document.getElementById('hatimContainer');
 const addHatimButton = document.getElementById('addHatimButton');
+const resetButton = document.createElement('button');
 
 // Şifre kontrolü
 loginButton.addEventListener('click', async () => {
@@ -54,6 +56,7 @@ async function loadHatims() {
 function createHatimCard(hatim) {
     const hatimDiv = document.createElement('div');
     hatimDiv.className = 'hatim';
+    hatimDiv.setAttribute('data-id', hatim.id);
     hatimDiv.innerHTML = `
         <h2>Hatim ${hatim.id}</h2>
         <h3>Hatim Duası</h3>
@@ -168,3 +171,33 @@ document.addEventListener('click', async function (event) {
         }
     }
 });
+
+// Reset button functionality
+resetButton.textContent = 'Verileri Sıfırla';
+resetButton.style.position = 'fixed';
+resetButton.style.bottom = '10px';
+resetButton.style.right = '10px';
+document.body.appendChild(resetButton);
+
+resetButton.addEventListener('click', () => {
+    const resetPassword = prompt('Şifreyi girin:');
+    if (resetPassword === RESET_PASSWORD) {
+        resetData();
+    } else {
+        alert('Yanlış şifre.');
+    }
+});
+
+async function resetData() {
+    try {
+        const { error } = await supabase
+            .from('hatimler')
+            .delete()
+            .not('id', 'eq', 0); // Delete all hatimler
+        if (error) throw error;
+        alert('Veriler sıfırlandı.');
+        location.reload(); // Reload the page to reflect changes
+    } catch (error) {
+        console.error('Veriler sıfırlanamadı:', error.message);
+    }
+}

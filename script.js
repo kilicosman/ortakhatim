@@ -1,4 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
+const supabase = supabase.createClient(
+    'https://xgawgxnzmhhhfrlambzq.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+);
 
 const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Doğru API anahtarınızı buraya ekleyin

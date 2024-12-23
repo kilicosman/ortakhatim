@@ -3,6 +3,7 @@ const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYXdneG56bWhoaGZybGFtYnpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2ODgzNjYsImV4cCI6MjA1MDI2NDM2Nn0.clUilHcXBAU3MCttysmdrIgudfgOPZJV-nSIWVWH-Eg'; // API anahtarınızı buraya ekleyin
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+
 const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
@@ -28,11 +29,9 @@ loginButton.addEventListener('click', async () => {
 });
 
 // Yeni hatim ekleme butonu
-addHatimButton.addEventListener('click', async () => {
-    const hatimler = await loadHatims();
-    const newHatimId = hatimler.length + 1;
-    const newHatim = { id: newHatimId, date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({isim: '', okundu: false}) };
-    await addHatim(newHatim);
+addHatimButton.addEventListener('click', () => {
+    const newHatim = { date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({isim: '', okundu: false}) };
+    addHatim(newHatim);
 });
 
 // Hatim yükleme
@@ -41,7 +40,7 @@ async function loadHatims() {
         const { data, error } = await supabase
             .from('hatimler')
             .select('*')
-            .order('id', { ascending: true });
+            .order('id', { ascending: false });
         if (error) throw error;
         data.forEach(hatim => addHatim(hatim));
         return data;
@@ -55,33 +54,29 @@ function createHatimCard(hatim) {
     const hatimDiv = document.createElement('div');
     hatimDiv.className = 'hatim';
     hatimDiv.innerHTML = `
-        <h2>Hatim ${hatim.id}</h2>
-        <h3>Hatim Duası</h3>
+        <h2>Hatim ${hatim?.id || 'Yeni'}</h2>
         <button class="delete-hatim">Sil</button>
-        <input type="date" value="${hatim.date || ''}">
+        <input type="date" value="${hatim?.date || ''}">
         <button class="save-date">Kaydet</button>
         <ul class="cuz-list">
             ${Array.from({ length: 30 }, (_, i) => `
                 <li class="cuz-item">
                     <span>Cüz ${i + 1}</span>
-                    <input type="text" placeholder="İsim yazınız" value="${hatim.cuzler[i]?.isim || ''}" style="width: 100px;">
+                    <input type="text" placeholder="İsim yazınız" value="${hatim?.cuzler?.[i]?.isim || ''}">
                     <button class="save-cuz">Kaydet</button>
-                    <label>Okundu <input type="checkbox" ${hatim.cuzler[i]?.okundu ? 'checked' : ''}></label>
+                    <input type="checkbox" ${hatim?.cuzler?.[i]?.okundu ? 'checked' : ''}>
                 </li>
             `).join('')}
         </ul>
     `;
     hatimContainer.prepend(hatimDiv);
-    return hatimDiv;
+    return hatimDiv; // DOM öğesini döndür
 }
 
 // Yeni hatim ekleme işlemi
-async function addHatim(hatimData = null) {
-    if (hatimData) {
-        const hatimCard = createHatimCard(hatimData);
-        await saveHatim(hatimCard);
-        hatimContainer.querySelector('p')?.remove(); // Remove the warning if it exists
-    }
+function addHatim(hatimData = null) {
+    const hatimCard = createHatimCard(hatimData);
+    if (!hatimData) saveHatim(hatimCard);
 }
 
 // Yeni hatimi kaydetme
@@ -147,14 +142,6 @@ document.addEventListener('click', async function (event) {
 
         const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
         if (error) console.error('Kaydetme hatası:', error.message);
-    }
-});
-
-// Event listener to auto-save checkbox changes
-document.addEventListener('change', async function (event) {
-    if (event.target.type === 'checkbox') {
-        const hatimCard = event.target.closest('.hatim');
-        await saveHatim(hatimCard);
     }
 });
 

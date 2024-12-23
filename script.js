@@ -1,7 +1,7 @@
-// Supabase'i global değişkenden alın
+// CDN'den yüklenen global 'supabase' değişkenini kullanın
 const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // API anahtarınızı buraya ekleyin
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');

@@ -77,6 +77,13 @@ function addHatim(hatimData = null) {
 // Yeni hatimi kaydetme
 async function saveHatim(hatimCard) {
     const date = hatimCard.querySelector('input[type="date"]').value;
+
+    // Tarih formatını kontrol et
+    if (!date) {
+        console.error('Geçersiz tarih değeri.');
+        return;
+    }
+
     const cuzler = Array.from(hatimCard.querySelectorAll('.cuz-item')).map(item => ({
         isim: item.querySelector('input[type="text"]').value,
         okundu: item.querySelector('input[type="checkbox"]').checked
@@ -84,7 +91,7 @@ async function saveHatim(hatimCard) {
 
     // Cüzler ve date verilerini kontrol etmek
     console.log({ date, cuzler });
-    
+
     const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
     if (error) console.error('Kaydetme hatası:', error.message);
 }

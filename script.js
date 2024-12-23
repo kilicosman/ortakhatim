@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYXdneG56bWhoaGZybGFtYnpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2ODgzNjYsImV4cCI6MjA1MDI2NDM2Nn0.clUilHcXBAU3MCttysmdrIgudfgOPZJV-nSIWVWH-Eg'; // API anahtarınızı buraya ekleyin
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Doğru API anahtarınızı buraya ekleyin
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const PASSWORD = 'vefa';
@@ -14,27 +14,35 @@ const hatimContainer = document.getElementById('hatimContainer');
 const addHatimButton = document.getElementById('addHatimButton');
 
 // Şifre kontrolü
-loginButton.addEventListener('click', () => {
+loginButton.addEventListener('click', async () => {
     if (passwordInput.value === PASSWORD) {
         loginContainer.style.display = 'none';
         contentContainer.style.display = 'block';
-        loadHatims();
+        const hatimler = await loadHatims();
+        if (!hatimler || hatimler.length === 0) {
+            addHatimButton.style.display = 'block';
+            hatimContainer.innerHTML = '<p>Henüz bir hatim eklenmedi. Yeni bir hatim ekleyin!</p>';
+        }
     } else {
         errorMessage.textContent = 'Yanlış şifre. Lütfen tekrar deneyin.';
     }
 });
 
-// Yeni hatim ekleme
-addHatimButton.addEventListener('click', () => addHatim());
+// Yeni hatim ekleme butonu
+addHatimButton.addEventListener('click', () => {
+    hatimContainer.innerHTML = ''; // Eski mesajı temizle
+    addHatim();
+});
 
 // Hatim yükleme
 async function loadHatims() {
     const { data, error } = await supabase.from('hatimler').select('*');
     if (error) {
         console.error('Hatim yüklenemedi:', error.message);
-    } else {
-        data.forEach(hatim => addHatim(hatim));
+        return [];
     }
+    data.forEach(hatim => addHatim(hatim));
+    return data;
 }
 
 // Yeni hatim kartı oluşturma

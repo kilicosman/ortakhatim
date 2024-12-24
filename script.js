@@ -81,6 +81,7 @@ function createHatimCard(hatim) {
                     <input type="text" placeholder="İsim yazınız" value="${hatim?.cuzler?.[i]?.isim || ''}">
                     <button class="save-cuz">Kaydet</button>
                     <input type="checkbox" ${hatim?.cuzler?.[i]?.okundu ? 'checked' : ''}>
+                    <span class="okundu-label">okundu</span>
                 </li>
             `).join('')}
         </ul>

@@ -3,7 +3,6 @@ const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYXdneG56bWhoaGZybGFtYnpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2ODgzNjYsImV4cCI6MjA1MDI2NDM2Nn0.clUilHcXBAU3MCttysmdrIgudfgOPZJV-nSIWVWH-Eg'; // API anahtarınızı buraya ekleyin
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-
 const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
@@ -12,6 +11,8 @@ const loginButton = document.getElementById('loginButton');
 const errorMessage = document.getElementById('errorMessage');
 const hatimContainer = document.getElementById('hatimContainer');
 const addHatimButton = document.getElementById('addHatimButton');
+const resetDatabaseButton = document.getElementById('resetDatabaseButton');
+const resetPasswordInput = document.getElementById('resetPasswordInput');
 
 // Şifre kontrolü
 loginButton.addEventListener('click', async () => {
@@ -32,6 +33,21 @@ loginButton.addEventListener('click', async () => {
 addHatimButton.addEventListener('click', () => {
     const newHatim = { date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({isim: '', okundu: false}) };
     addHatim(newHatim);
+});
+
+// Database resetle butonu
+resetDatabaseButton.addEventListener('click', async () => {
+    if (resetPasswordInput.value === 'admin') {
+        const { error } = await supabase.from('hatimler').delete().neq('id', 0);
+        if (error) {
+            console.error('Database reset hatası:', error.message);
+        } else {
+            alert('Database başarıyla resetlendi.');
+            location.reload();
+        }
+    } else {
+        alert('Yanlış admin şifresi.');
+    }
 });
 
 // Hatim yükleme
@@ -155,3 +171,12 @@ document.addEventListener('click', async function (event) {
         }
     }
 });
+
+// Bilgi mesajı gösterme
+function showMessage(message, type) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message ${type}`;
+    msgDiv.textContent = message;
+    document.body.appendChild(msgDiv);
+    setTimeout(() => msgDiv.remove(), 4000);
+}

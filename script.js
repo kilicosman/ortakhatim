@@ -1,9 +1,3 @@
-// CDN'den yüklenen global 'supabase' değişkenini kullanın
-const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYXdneG56bWhoaGZybGFtYnpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2ODgzNjYsImV4cCI6MjA1MDI2NDM2Nn0.clUilHcXBAU3MCttysmdrIgudfgOPZJV-nSIWVWH-Eg'; // API anahtarınızı buraya ekleyin
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
 const passwordInput = document.getElementById('passwordInput');
@@ -16,7 +10,15 @@ const resetPasswordInput = document.getElementById('resetPasswordInput');
 let hatimCounter = 1;
 
 const handleLogin = async () => {
-    if (passwordInput.value === PASSWORD) {
+    const password = passwordInput.value;
+    const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+    });
+
+    const result = await response.json();
+    if (response.status === 200) {
         loginContainer.style.display = 'none';
         contentContainer.style.display = 'block';
         const hatimler = await loadHatims();
@@ -28,7 +30,7 @@ const handleLogin = async () => {
             hatimCounter = hatimler.length + 1;
         }
     } else {
-        errorMessage.textContent = 'Yanlış şifre. Lütfen tekrar deneyin.';
+        errorMessage.textContent = result.message;
     }
 };
 
@@ -47,13 +49,13 @@ resetDatabaseButton.addEventListener('click', () => {
     resetPasswordInput.addEventListener('keypress', async (e) => {
         if (e.key === 'Enter') {
             if (resetPasswordInput.value === 'admin') {
-                const { error } = await supabase.from('hatimler').delete().neq('id', 0);
-                if (error) {
-                    console.error('Database reset hatası:', error.message);
-                } else {
+                const response = await fetch('/reset', { method: 'POST' });
+                if (response.ok) {
                     alert('Database başarıyla resetlendi.');
                     hatimCounter = 1;
                     location.reload();
+                } else {
+                    alert('Database reset hatası.');
                 }
             } else {
                 alert('Yanlış admin şifresi.');
@@ -64,13 +66,14 @@ resetDatabaseButton.addEventListener('click', () => {
 
 async function loadHatims() {
     try {
-        const { data, error } = await supabase
-            .from('hatimler')
-            .select('*')
-            .order('id', { ascending: true });
-        if (error) throw error;
-        data.forEach(hatim => addHatim(hatim));
-        return data;
+        const response = await fetch('/hatims');
+        const data = await response.json();
+        if (response.ok) {
+            data.forEach(hatim => addHatim(hatim));
+            return data;
+        } else {
+            throw new Error(data.error);
+        }
     } catch (error) {
         console.error('Hatim yüklenemedi:', error.message);
     }
@@ -81,10 +84,11 @@ function createHatimCard(hatim) {
     hatimDiv.className = 'hatim';
     hatimDiv.innerHTML = `
         <h2>Hatim ${hatim.id}</h2>
-        <input type="checkbox" ${hatim.dua ? 'checked' : ''} class="dua-checkbox">
         <button class="delete-hatim">Sil</button>
         <input type="date" value="${hatim.date}">
         <button class="save-date">Kaydet</button>
+        <label for="hatim-duasi-checkbox-${hatim.id}">Hatim Duası</label>
+        <input type="checkbox" id="hatim-duasi-checkbox-${hatim.id}" ${hatim.dua ? 'checked' : ''} class="dua-checkbox">
         <ul class="cuz-list">
             ${Array.from({ length: 30 }, (_, i) => `
                 <li class="cuz-item">
@@ -119,20 +123,27 @@ async function saveHatim(hatimCard) {
         isim: item.querySelector('input[type="text"]').value,
         okundu: item.querySelector('input[type="checkbox"]').checked
     }));
-    const { error } = await supabase.from('hatimler').upsert([{ id: hatimId, date, cuzler, dua }]);
-    if (error) {
-        console.error('Kaydetme hatası:', error.message);
-    } else {
+    const response = await fetch(`/hatims/${hatimId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date, cuzler, dua })
+    });
+
+    if (response.ok) {
         showMessage('Başarıyla kaydedildi.', 'success');
+    } else {
+        const result = await response.json();
+        console.error('Kaydetme hatası:', result.error);
     }
 }
 
 async function deleteHatim(hatimId) {
-    const { error } = await supabase.from('hatimler').delete().eq('id', hatimId);
-    if (error) {
-        console.error('Silme hatası:', error.message);
-    } else {
+    const response = await fetch(`/hatims/${hatimId}`, { method: 'DELETE' });
+    if (response.ok) {
         document.querySelector(`.hatim[data-id="${hatimId}"]`).remove();
+    } else {
+        const result = await response.json();
+        console.error('Silme hatası:', result.error);
     }
 }
 
@@ -156,11 +167,17 @@ document.addEventListener('click', async function (event) {
             isim: item.querySelector('input[type="text"]').value,
             okundu: item.querySelector('input[type="checkbox"]').checked
         }));
-        const { error } = await supabase.from('hatimler').upsert([{ id: hatimCard.getAttribute('data-id'), date, cuzler }]);
-        if (error) {
-            console.error('Kaydetme hatası:', error.message);
-        } else {
+        const response = await fetch(`/hatims/${hatimCard.getAttribute('data-id')}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date, cuzler })
+        });
+
+        if (response.ok) {
             showMessage('Başarıyla kaydedildi.', 'success');
+        } else {
+            const result = await response.json();
+            console.error('Kaydetme hatası:', result.error);
         }
     }
 });

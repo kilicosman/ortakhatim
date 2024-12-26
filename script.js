@@ -81,10 +81,11 @@ function createHatimCard(hatim) {
     hatimDiv.className = 'hatim';
     hatimDiv.innerHTML = `
         <h2>Hatim ${hatim.id}</h2>
-        <input type="checkbox" ${hatim.dua ? 'checked' : ''} class="dua-checkbox">
         <button class="delete-hatim">Sil</button>
         <input type="date" value="${hatim.date}">
         <button class="save-date">Kaydet</button>
+        <label for="hatim-duasi-checkbox-${hatim.id}">Hatim Duası</label>
+        <input type="checkbox" id="hatim-duasi-checkbox-${hatim.id}" ${hatim.dua ? 'checked' : ''} class="dua-checkbox">
         <ul class="cuz-list">
             ${Array.from({ length: 30 }, (_, i) => `
                 <li class="cuz-item">
@@ -128,11 +129,33 @@ async function saveHatim(hatimCard) {
 }
 
 async function deleteHatim(hatimId) {
-    const { error } = await supabase.from('hatimler').delete().eq('id', hatimId);
+    const { data, error } = await supabase
+        .from('hatimler')
+        .select('*')
+        .order('id', { ascending: true });
+
     if (error) {
         console.error('Silme hatası:', error.message);
+        return;
+    }
+
+    const latestHatimId = data.length > 0 ? data[data.length - 1].id : null;
+
+    if (hatimId === latestHatimId) {
+        const { error } = await supabase.from('hatimler').delete().eq('id', hatimId);
+        if (error) {
+            console.error('Silme hatası:', error.message);
+        } else {
+            document.querySelector(`.hatim[data-id="${hatimId}"]`).remove();
+        }
+        hatimCounter--;
     } else {
-        document.querySelector(`.hatim[data-id="${hatimId}"]`).remove();
+        const { error } = await supabase.from('hatimler').delete().eq('id', hatimId);
+        if (error) {
+            console.error('Silme hatası:', error.message);
+        } else {
+            document.querySelector(`.hatim[data-id="${hatimId}"]`).remove();
+        }
     }
 }
 

@@ -2,9 +2,6 @@
 const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYXdneG56bWhoaGZybGFtYnpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2ODgzNjYsImV4cCI6MjA1MDI2NDM2Nn0.clUilHcXBAU3MCttysmdrIgudfgOPZJV-nSIWVWH-Eg'; // API anahtarınızı buraya ekleyin
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-// .env dosyasından environment değişkenlerini yüklemek için dotenv paketini kullanın
-// require('dotenv').config(); Bu satır sadece Node.js ortamında çalışır, bu yüzden burada kullanmanıza gerek yok
-
 
 const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');
@@ -40,17 +37,22 @@ addHatimButton.addEventListener('click', () => {
 
 // Database resetle butonu
 resetDatabaseButton.addEventListener('click', async () => {
-    if (resetPasswordInput.value === 'admin') {
-        const { error } = await supabase.from('hatimler').delete().neq('id', 0);
-        if (error) {
-            console.error('Database reset hatası:', error.message);
-        } else {
-            alert('Database başarıyla resetlendi.');
-            location.reload();
+    resetPasswordInput.style.display = 'block';
+    resetPasswordInput.addEventListener('keypress', async (e) => {
+        if (e.key === 'Enter') {
+            if (resetPasswordInput.value === 'admin') {
+                const { error } = await supabase.from('hatimler').delete().neq('id', 0);
+                if (error) {
+                    console.error('Database reset hatası:', error.message);
+                } else {
+                    alert('Database başarıyla resetlendi.');
+                    location.reload();
+                }
+            } else {
+                alert('Yanlış admin şifresi.');
+            }
         }
-    } else {
-        alert('Yanlış admin şifresi.');
-    }
+    });
 });
 
 // Hatim yükleme
@@ -83,7 +85,8 @@ function createHatimCard(hatim) {
                     <span>Cüz ${i + 1}</span>
                     <input type="text" placeholder="İsim yazınız" value="${hatim?.cuzler?.[i]?.isim || ''}">
                     <button class="save-cuz">Kaydet</button>
-                    <input type="checkbox" ${hatim?.cuzler?.[i]?.okundu ? 'checked' : ''}>
+                    <label for="okundu-checkbox-${i}">Okundu</label>
+                    <input type="checkbox" id="okundu-checkbox-${i}" ${hatim?.cuzler?.[i]?.okundu ? 'checked' : ''}>
                 </li>
             `).join('')}
         </ul>

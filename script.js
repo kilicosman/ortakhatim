@@ -2,7 +2,6 @@
 const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYXdneG56bWhoaGZybGFtYnpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2ODgzNjYsImV4cCI6MjA1MDI2NDM2Nn0.clUilHcXBAU3MCttysmdrIgudfgOPZJV-nSIWVWH-Eg'; // API anahtarınızı buraya ekleyin
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
@@ -112,11 +111,12 @@ async function saveHatim(hatimCard) {
         console.error('Geçersiz tarih değeri.');
         return;
     }
+    const hatimId = hatimCard.getAttribute('data-id');
     const cuzler = Array.from(hatimCard.querySelectorAll('.cuz-item')).map(item => ({
         isim: item.querySelector('input[type="text"]').value,
         okundu: item.querySelector('input[type="checkbox"]').checked
     }));
-    const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
+    const { error } = await supabase.from('hatimler').upsert([{ id: hatimId, date, cuzler }]);
     if (error) {
         console.error('Kaydetme hatası:', error.message);
     } else {
@@ -153,7 +153,7 @@ document.addEventListener('click', async function (event) {
             isim: item.querySelector('input[type="text"]').value,
             okundu: item.querySelector('input[type="checkbox"]').checked
         }));
-        const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
+        const { error } = await supabase.from('hatimler').upsert([{ id: hatimCard.getAttribute('data-id'), date, cuzler }]);
         if (error) {
             console.error('Kaydetme hatası:', error.message);
         } else {
@@ -175,7 +175,7 @@ document.addEventListener('change', async function (event) {
             isim: item.querySelector('input[type="text"]').value,
             okundu: item.querySelector('input[type="checkbox"]').checked
         }));
-        const { error } = await supabase.from('hatimler').upsert([{ date, cuzler }]);
+        const { error } = await supabase.from('hatimler').upsert([{ id: hatimCard.getAttribute('data-id'), date, cuzler }]);
         if (error) {
             console.error('Kaydetme hatası:', error.message);
         } else {

@@ -116,7 +116,11 @@ async function saveHatim(hatimCard) {
         okundu: item.querySelector('input[type="checkbox"]').checked
     }));
     const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
-    if (error) console.error('Kaydetme hatası:', error.message);
+    if (error) {
+        console.error('Kaydetme hatası:', error.message);
+    } else {
+        showMessage('Başarıyla kaydedildi.', 'success');
+    }
 }
 
 async function deleteHatim(hatimId) {
@@ -149,16 +153,32 @@ document.addEventListener('click', async function (event) {
             okundu: item.querySelector('input[type="checkbox"]').checked
         }));
         const { error } = await supabase.from('hatimler').insert([{ date, cuzler }]);
-        if (error) console.error('Kaydetme hatası:', error.message);
+        if (error) {
+            console.error('Kaydetme hatası:', error.message);
+        } else {
+            showMessage('Başarıyla kaydedildi.', 'success');
+        }
     }
 });
 
-document.addEventListener('click', async function (event) {
-    if (event.target.classList.contains('delete-hatim')) {
+document.addEventListener('change', async function (event) {
+    if (event.target.type === 'checkbox') {
+        const cuzItem = event.target.closest('.cuz-item');
         const hatimCard = event.target.closest('.hatim');
-        const hatimId = hatimCard.getAttribute('data-id');
-        if (confirm('Bu hatimi silmek istediğinizden emin misiniz?')) {
-            await deleteHatim(hatimId);
+        const date = hatimCard.querySelector('input[type="date"]').value;
+        if (!date || isNaN(Date.parse(date))) {
+            console.error('Geçersiz tarih değeri.');
+            return;
+        }
+        const cuzler = Array.from(hatimCard.querySelectorAll('.cuz-item')).map(item => ({
+            isim: item.querySelector('input[type="text"]').value,
+            okundu: item.querySelector('input[type="checkbox"]').checked
+        }));
+        const { error } = await supabase.from('hatimler').upsert([{ date, cuzler }]);
+        if (error) {
+            console.error('Kaydetme hatası:', error.message);
+        } else {
+            showMessage('Başarıyla kaydedildi.', 'success');
         }
     }
 });
@@ -170,3 +190,4 @@ function showMessage(message, type) {
     document.body.appendChild(msgDiv);
     setTimeout(() => msgDiv.remove(), 4000);
 }
+          

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Hocaefendi için Ortak Hatim</title>
+    <title>Ortak Hatim</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,9 +17,12 @@
         <h1>Ortak Hatim</h1>
         <div id="hatimContainer" class="hatim-container"></div>
         <button id="addHatimButton" style="display:none;">Yeni Hatim Ekle</button>
-        <button id="resetDatabaseButton" class="reset-button">Database Resetle</button>
-        <input type="password" id="resetPasswordInput" placeholder="Admin Şifreyi Girin">
     </div>
+    <footer>
+        <button id="resetDatabaseButton" class="reset-button">Verileri Sıfırla</button>
+        <input type="password" id="resetPasswordInput" placeholder="Admin Şifreyi Girin" style="display: none;">
+        <p>Ortak Hatim 2024 &copy; Tüm Hakları Saklıdır</p>
+    </footer>
     <!-- Supabase'i CDN ile dahil edin -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="script.js"></script>

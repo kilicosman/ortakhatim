@@ -3,6 +3,7 @@ const SUPABASE_URL = 'https://xgawgxnzmhhhfrlambzq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYXdneG56bWhoaGZybGFtYnpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2ODgzNjYsImV4cCI6MjA1MDI2NDM2Nn0.clUilHcXBAU3MCttysmdrIgudfgOPZJV-nSIWVWH-Eg'; // API anahtarınızı buraya ekleyin
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+
 const PASSWORD = 'vefa';
 const loginContainer = document.getElementById('loginContainer');
 const contentContainer = document.getElementById('contentContainer');
@@ -13,6 +14,7 @@ const hatimContainer = document.getElementById('hatimContainer');
 const addHatimButton = document.getElementById('addHatimButton');
 const resetDatabaseButton = document.getElementById('resetDatabaseButton');
 const resetPasswordInput = document.getElementById('resetPasswordInput');
+let hatimCounter = 1;
 
 // Şifre kontrolü
 loginButton.addEventListener('click', async () => {
@@ -23,6 +25,8 @@ loginButton.addEventListener('click', async () => {
         if (!hatimler || hatimler.length === 0) {
             addHatimButton.style.display = 'block';
             hatimContainer.innerHTML = '<p>Henüz bir hatim eklenmedi. Yeni bir hatim ekleyin!</p>';
+        } else {
+            hatimCounter = hatimler.length + 1;
         }
     } else {
         errorMessage.textContent = 'Yanlış şifre. Lütfen tekrar deneyin.';
@@ -31,28 +35,24 @@ loginButton.addEventListener('click', async () => {
 
 // Yeni hatim ekleme butonu
 addHatimButton.addEventListener('click', () => {
-    const newHatim = { date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({ isim: '', okundu: false }) };
+    const newHatim = { id: hatimCounter++, date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({ isim: '', okundu: false }) };
     addHatim(newHatim);
 });
 
 // Database resetle butonu
 resetDatabaseButton.addEventListener('click', async () => {
-    resetPasswordInput.style.display = 'block';
-    resetPasswordInput.addEventListener('keypress', async (e) => {
-        if (e.key === 'Enter') {
-            if (resetPasswordInput.value === 'admin') {
-                const { error } = await supabase.from('hatimler').delete().neq('id', 0);
-                if (error) {
-                    console.error('Database reset hatası:', error.message);
-                } else {
-                    alert('Database başarıyla resetlendi.');
-                    location.reload();
-                }
-            } else {
-                alert('Yanlış admin şifresi.');
-            }
+    if (resetPasswordInput.value === 'admin') {
+        const { error } = await supabase.from('hatimler').delete().neq('id', 0);
+        if (error) {
+            console.error('Database reset hatası:', error.message);
+        } else {
+            alert('Database başarıyla resetlendi.');
+            hatimCounter = 1;
+            location.reload();
         }
-    });
+    } else {
+        alert('Yanlış admin şifresi.');
+    }
 });
 
 // Hatim yükleme
@@ -61,7 +61,7 @@ async function loadHatims() {
         const { data, error } = await supabase
             .from('hatimler')
             .select('*')
-            .order('id', { ascending: false });
+            .order('id', { ascending: true });
         if (error) throw error;
         data.forEach(hatim => addHatim(hatim));
         return data;
@@ -75,18 +75,18 @@ function createHatimCard(hatim) {
     const hatimDiv = document.createElement('div');
     hatimDiv.className = 'hatim';
     hatimDiv.innerHTML = `
-        <h2>Hatim ${hatim?.id || 'Yeni'}</h2>
+        <h2>Hatim ${hatim.id}</h2>
         <button class="delete-hatim">Sil</button>
-        <input type="date" value="${hatim?.date || ''}">
+        <input type="date" value="${hatim.date}">
         <button class="save-date">Kaydet</button>
         <ul class="cuz-list">
             ${Array.from({ length: 30 }, (_, i) => `
                 <li class="cuz-item">
                     <span>Cüz ${i + 1}</span>
-                    <input type="text" placeholder="İsim yazınız" value="${hatim?.cuzler?.[i]?.isim || ''}">
+                    <input type="text" placeholder="İsim yazınız" value="${hatim.cuzler[i]?.isim || ''}">
                     <button class="save-cuz">Kaydet</button>
-                    <label for="okundu-checkbox-${i}">Okundu</label>
-                    <input type="checkbox" id="okundu-checkbox-${i}" ${hatim?.cuzler?.[i]?.okundu ? 'checked' : ''}>
+                    <input type="checkbox" ${hatim.cuzler[i]?.okundu ? 'checked' : ''}>
+                    <span class="okundu-label">okundu</span>
                 </li>
             `).join('')}
         </ul>
@@ -163,3 +163,12 @@ document.addEventListener('click', async function (event) {
         }
     }
 });
+
+// Bilgi mesajı gösterme
+function showMessage(message, type) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message ${type}`;
+    msgDiv.textContent = message;
+    document.body.appendChild(msgDiv);
+    setTimeout(() => msgDiv.remove(), 4000);
+}

@@ -11,7 +11,7 @@ let hatimCounter = 1;
 
 const handleLogin = async () => {
     const password = passwordInput.value;
-    const response = await fetch('/login', {
+    const response = await fetch('https://ortakhatim.vercel.app/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })

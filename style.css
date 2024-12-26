@@ -158,9 +158,6 @@ button:hover {
 }
 
 .reset-button {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
     background-color: #e74c3c;
     padding: 5px 10px;
     font-size: 12px;
@@ -168,6 +165,17 @@ button:hover {
     border-radius: 5px;
     color: #fff;
     cursor: pointer;
+}
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+footer p {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #666;
 }
 
 @media (max-width: 600px) {

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node server/server.js",
-    "build": "npm install --prefix server && npm run build --prefix server"
+    "build": "npm install --prefix server"
   },
   "dependencies": {
     "express": "^4.17.1",

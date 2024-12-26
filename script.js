@@ -16,8 +16,7 @@ const resetDatabaseButton = document.getElementById('resetDatabaseButton');
 const resetPasswordInput = document.getElementById('resetPasswordInput');
 let hatimCounter = 1;
 
-// Şifre kontrolü
-loginButton.addEventListener('click', async () => {
+const handleLogin = async () => {
     if (passwordInput.value === PASSWORD) {
         loginContainer.style.display = 'none';
         contentContainer.style.display = 'block';
@@ -31,31 +30,38 @@ loginButton.addEventListener('click', async () => {
     } else {
         errorMessage.textContent = 'Yanlış şifre. Lütfen tekrar deneyin.';
     }
+};
+
+loginButton.addEventListener('click', handleLogin);
+passwordInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleLogin();
 });
 
-// Yeni hatim ekleme butonu
 addHatimButton.addEventListener('click', () => {
     const newHatim = { id: hatimCounter++, date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({ isim: '', okundu: false }) };
     addHatim(newHatim);
 });
 
-// Database resetle butonu
-resetDatabaseButton.addEventListener('click', async () => {
-    if (resetPasswordInput.value === 'admin') {
-        const { error } = await supabase.from('hatimler').delete().neq('id', 0);
-        if (error) {
-            console.error('Database reset hatası:', error.message);
-        } else {
-            alert('Database başarıyla resetlendi.');
-            hatimCounter = 1;
-            location.reload();
+resetDatabaseButton.addEventListener('click', () => {
+    resetPasswordInput.style.display = 'block';
+    resetPasswordInput.addEventListener('keypress', async (e) => {
+        if (e.key === 'Enter') {
+            if (resetPasswordInput.value === 'admin') {
+                const { error } = await supabase.from('hatimler').delete().neq('id', 0);
+                if (error) {
+                    console.error('Database reset hatası:', error.message);
+                } else {
+                    alert('Database başarıyla resetlendi.');
+                    hatimCounter = 1;
+                    location.reload();
+                }
+            } else {
+                alert('Yanlış admin şifresi.');
+            }
         }
-    } else {
-        alert('Yanlış admin şifresi.');
-    }
+    });
 });
 
-// Hatim yükleme
 async function loadHatims() {
     try {
         const { data, error } = await supabase
@@ -70,7 +76,6 @@ async function loadHatims() {
     }
 }
 
-// Yeni hatim kartı oluşturma
 function createHatimCard(hatim) {
     const hatimDiv = document.createElement('div');
     hatimDiv.className = 'hatim';
@@ -92,16 +97,14 @@ function createHatimCard(hatim) {
         </ul>
     `;
     hatimContainer.prepend(hatimDiv);
-    return hatimDiv; // DOM öğesini döndür
+    return hatimDiv;
 }
 
-// Yeni hatim ekleme işlemi
 function addHatim(hatimData = null) {
     const hatimCard = createHatimCard(hatimData);
     if (!hatimData) saveHatim(hatimCard);
 }
 
-// Yeni hatimi kaydetme
 async function saveHatim(hatimCard) {
     const date = hatimCard.querySelector('input[type="date"]').value;
     if (!date || isNaN(Date.parse(date))) {
@@ -116,7 +119,6 @@ async function saveHatim(hatimCard) {
     if (error) console.error('Kaydetme hatası:', error.message);
 }
 
-// Hatim silme işlemi
 async function deleteHatim(hatimId) {
     const { error } = await supabase.from('hatimler').delete().eq('id', hatimId);
     if (error) {
@@ -126,7 +128,6 @@ async function deleteHatim(hatimId) {
     }
 }
 
-// Event listener to save date
 document.addEventListener('click', async function (event) {
     if (event.target.classList.contains('save-date')) {
         const hatimCard = event.target.closest('.hatim');
@@ -134,7 +135,6 @@ document.addEventListener('click', async function (event) {
     }
 });
 
-// Event listener to save each cüz
 document.addEventListener('click', async function (event) {
     if (event.target.classList.contains('save-cuz')) {
         const cuzItem = event.target.closest('.cuz-item');
@@ -153,7 +153,6 @@ document.addEventListener('click', async function (event) {
     }
 });
 
-// Event listener to delete Hatim with confirmation
 document.addEventListener('click', async function (event) {
     if (event.target.classList.contains('delete-hatim')) {
         const hatimCard = event.target.closest('.hatim');
@@ -164,7 +163,6 @@ document.addEventListener('click', async function (event) {
     }
 });
 
-// Bilgi mesajı gösterme
 function showMessage(message, type) {
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${type}`;

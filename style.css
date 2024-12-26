@@ -172,9 +172,10 @@ button:hover {
 footer {
     text-align: center;
     width: 100%;
-    position: absolute;
+    position: relative;
     bottom: 0;
     left: 0;
+    margin-top: 20px;
 }
 
 footer p {

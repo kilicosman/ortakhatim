@@ -38,7 +38,7 @@ passwordInput.addEventListener('keypress', (e) => {
 });
 
 addHatimButton.addEventListener('click', () => {
-    const newHatim = { id: hatimCounter++, date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({ isim: '', okundu: false }) };
+    const newHatim = { id: hatimCounter++, date: new Date().toISOString().split('T')[0], cuzler: Array(30).fill({ isim: '', okundu: false }), dua: false };
     addHatim(newHatim);
 });
 
@@ -81,6 +81,7 @@ function createHatimCard(hatim) {
     hatimDiv.className = 'hatim';
     hatimDiv.innerHTML = `
         <h2>Hatim ${hatim.id}</h2>
+        <input type="checkbox" ${hatim.dua ? 'checked' : ''} class="dua-checkbox">
         <button class="delete-hatim">Sil</button>
         <input type="date" value="${hatim.date}">
         <button class="save-date">Kaydet</button>
@@ -113,11 +114,12 @@ async function saveHatim(hatimCard) {
         return;
     }
     const hatimId = hatimCard.getAttribute('data-id');
+    const dua = hatimCard.querySelector('.dua-checkbox').checked;
     const cuzler = Array.from(hatimCard.querySelectorAll('.cuz-item')).map(item => ({
         isim: item.querySelector('input[type="text"]').value,
         okundu: item.querySelector('input[type="checkbox"]').checked
     }));
-    const { error } = await supabase.from('hatimler').upsert([{ id: hatimId, date, cuzler }]);
+    const { error } = await supabase.from('hatimler').upsert([{ id: hatimId, date, cuzler, dua }]);
     if (error) {
         console.error('Kaydetme hatası:', error.message);
     } else {
@@ -165,22 +167,17 @@ document.addEventListener('click', async function (event) {
 
 document.addEventListener('change', async function (event) {
     if (event.target.type === 'checkbox') {
-        const cuzItem = event.target.closest('.cuz-item');
         const hatimCard = event.target.closest('.hatim');
-        const date = hatimCard.querySelector('input[type="date"]').value;
-        if (!date || isNaN(Date.parse(date))) {
-            console.error('Geçersiz tarih değeri.');
-            return;
-        }
-        const cuzler = Array.from(hatimCard.querySelectorAll('.cuz-item')).map(item => ({
-            isim: item.querySelector('input[type="text"]').value,
-            okundu: item.querySelector('input[type="checkbox"]').checked
-        }));
-        const { error } = await supabase.from('hatimler').upsert([{ id: hatimCard.getAttribute('data-id'), date, cuzler }]);
-        if (error) {
-            console.error('Kaydetme hatası:', error.message);
-        } else {
-            showMessage('Başarıyla kaydedildi.', 'success');
+        await saveHatim(hatimCard);
+    }
+});
+
+document.addEventListener('click', async function (event) {
+    if (event.target.classList.contains('delete-hatim')) {
+        const hatimCard = event.target.closest('.hatim');
+        const hatimId = hatimCard.getAttribute('data-id');
+        if (confirm('Emin misiniz? Bu hatimi silmek istediğinizden emin misiniz?')) {
+            await deleteHatim(hatimId);
         }
     }
 });

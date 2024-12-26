@@ -96,6 +96,7 @@ function createHatimCard(hatim) {
             `).join('')}
         </ul>
     `;
+    hatimDiv.setAttribute('data-id', hatim.id);  // Add data-id attribute for deletion
     hatimContainer.prepend(hatimDiv);
     return hatimDiv;
 }
@@ -190,4 +191,3 @@ function showMessage(message, type) {
     document.body.appendChild(msgDiv);
     setTimeout(() => msgDiv.remove(), 4000);
 }
-          

@@ -11,7 +11,7 @@ let hatimCounter = 1;
 
 const handleLogin = async () => {
     const password = passwordInput.value;
-    const response = await fetch('/api/login', {  // Updated URL
+    const response = await fetch('/server/login', {  // Updated URL
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })

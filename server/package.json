@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node server.js",
-    "build": "mkdir -p public && npm install"
+    "build": "mkdir -p public && cp -r path/to/static/files/* public/"
   },
   "dependencies": {
     "express": "^4.17.1",

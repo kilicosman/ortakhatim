@@ -11,7 +11,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANO
 
 app.use(express.json());
 
-app.post('/server/login', async (req, res) => {
+app.post('/login', async (req, res) => {
     const { password } = req.body;
     if (password === 'vefa') {
         res.status(200).send({ message: 'Login successful' });

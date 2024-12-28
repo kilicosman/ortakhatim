@@ -20,7 +20,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-app.get('/api/hatims', async (req, res) => {
+app.get('/hatims', async (req, res) => {
     const { data, error } = await supabase.from('hatimler').select('*').order('id', { ascending: true });
     if (error) {
         return res.status(500).send({ error: error.message });

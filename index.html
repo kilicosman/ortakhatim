@@ -1,32 +1,30 @@
+
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ortak Hatim</title>
+    <title>Ortak Hatim Paylaşımı</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="loginContainer" class="container">
-        <h1>Giriş Yap</h1>
-        <input type="password" id="passwordInput" placeholder="Şifreyi girin">
-        <button id="loginButton">Giriş Yap</button>
-        <div id="errorMessage" class="error-message"></div>
-    </div>
-
-    <div id="contentContainer" class="container" style="display: none;">
+    <header>
         <h1>Ortak Hatim</h1>
-        <div id="hatimContainer" class="hatim-container"></div>
-        <button id="addHatimButton">Yeni Hatim Ekle</button>
-    </div>
-
+    </header>
+    <main>
+        <div id="login-container">
+            <input type="password" id="password" placeholder="Şifreyi girin">
+            <button id="login-button">Giriş Yap</button>
+            <p id="error-message" class="hidden">Hatalı şifre, lütfen tekrar deneyin.</p>
+        </div>
+        <div id="hatim-container" class="hidden">
+            <button id="add-hatim-button">Yeni Hatim Ekle</button>
+            <div id="hatims"></div>
+        </div>
+    </main>
     <footer>
-        <button id="resetDatabaseButton" class="reset-button">Verileri Sıfırla</button>
-        <input type="password" id="resetPasswordInput" placeholder="Admin Şifreyi Girin" style="display: none;">
-        <p>Ortak Hatim 2024 &copy; Tüm Hakları Saklıdır</p>
+        <p>© Ortak Hatim 2024</p>
     </footer>
-    <!-- Supabase'i CDN ile dahil edin -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="script.js"></script>
 </body>
 </html>

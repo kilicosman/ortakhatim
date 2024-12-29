@@ -1,70 +1,223 @@
-
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    background-color: #f8f9fa;
+    background-color: #f0f2f5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+h1 {
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+input[type="password"] {
+    padding: 10px;
+    font-size: 16px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.hatim-container {
+    margin-top: 20px;
+}
+
+.hatim {
+    margin-bottom: 40px;
+    position: relative;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+}
+
+.hatim h2 {
+    text-align: center;
+    color: #4CAF50;
+    margin-bottom: 10px;
+}
+
+.hatim .hatim-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.hatim .hatim-info span {
+    font-size: 16px;
     color: #333;
 }
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #007bff;
-    color: white;
-    padding: 1em;
-}
-header h1 {
-    margin: 0;
-}
-#hatim-container .hatim {
+
+.hatim .hatim-info input[type="date"] {
+    padding: 10px;
     border: 1px solid #ddd;
-    background-color: white;
-    margin: 1em;
-    padding: 1em;
-    border-radius: 8px;
+    border-radius: 4px;
+    font-size: 16px;
+    color: #333;
 }
-.hatim h2 {
-    margin-top: 0;
+
+.hatim .hatim-info label {
+    margin-left: 10px;
 }
-.hatim ul {
-    list-style: none;
+
+.hatim .hatim-info .remove-hatim {
+    padding: 5px 10px;
+    font-size: 12px;
+    color: #fff;
+    background-color: #e74c3c;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.hatim .hatim-info .remove-hatim:hover {
+    background-color: #c0392b;
+}
+
+.cuz-list {
+    list-style-type: none;
     padding: 0;
 }
-.hatim ul li {
+
+.cuz-item {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin: 0.5em 0;
-}
-.hatim ul li input[type="text"] {
-    width: 40%;
-    padding: 0.5em;
-}
-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 0.5em 1em;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
     border-radius: 4px;
+    margin-bottom: 5px;
+    background-color: #fff;
+}
+
+.cuz-item label {
+    flex: 0 0 60px;
+    margin-right: 10px;
+    text-align: right;
+}
+
+.cuz-item input[type="text"] {
+    flex: 1;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 10px;
+    font-size: 14px;
+    width: 15ch; /* Adjusted width */
+}
+
+.cuz-item input[type="checkbox"] {
+    transform: scale(1.5);
+    margin-left: 5px;
+}
+
+.cuz-item span.okundu-label {
+    margin-left: 10px;
+    font-size: 12px;
+    color: #333;
+}
+
+.reset-button {
+    background-color: #e74c3c;
+    padding: 5px 10px;
+    font-size: 12px;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
     cursor: pointer;
+    margin-top: 20px;
 }
-button:hover {
-    background-color: #0056b3;
-}
-input[type="checkbox"] {
-    transform: scale(1.2);
-}
-#error-message {
-    color: red;
-    font-size: 0.9em;
-}
-#error-message.hidden {
-    display: none;
-}
+
 footer {
     text-align: center;
-    padding: 1em;
-    background-color: #f1f1f1;
+    width: 100%;
+    position: relative;
+    bottom: 0;
+    left: 0;
+    margin-top: 20px;
+}
+
+footer p {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #666;
+}
+
+@media (max-width: 600px) {
+    .cuz-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .cuz-item input[type="text"] {
+        margin-bottom: 10px;
+    }
+
+    .cuz-item label {
+        text-align: left;
+    }
+
+    .hatim .hatim-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .hatim .hatim-info span,
+    .hatim .hatim-info input[type="date"] {
+        margin-bottom: 10px;
+    }
 }

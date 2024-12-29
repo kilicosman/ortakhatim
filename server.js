@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const { createClient } = require('@supabase/supabase-js');
+const path = require('path');
 
 dotenv.config();
 
@@ -12,7 +13,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANO
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.send('Welcome to Ortak HAtim');
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.post('/login', async (req, res) => {

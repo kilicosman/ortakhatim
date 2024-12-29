@@ -11,6 +11,10 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANO
 
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.send('Welcome to Ortak HAtim');
+});
+
 app.post('/login', async (req, res) => {
     const { password } = req.body;
     if (password === 'vefa') {

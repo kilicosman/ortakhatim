@@ -11,6 +11,20 @@ const port = process.env.PORT || 3000;
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 app.use(express.json());
+
+// Middleware to set correct MIME types
+app.use((req, res, next) => {
+  const mimeTypes = {
+    '.js': 'application/javascript',
+    '.css': 'text/css',
+  };
+  const ext = path.extname(req.url);
+  if (mimeTypes[ext]) {
+    res.setHeader('Content-Type', mimeTypes[ext]);
+  }
+  next();
+});
+
 app.use(express.static(__dirname));  // Serve static files from the root directory
 
 app.get('/', (req, res) => {

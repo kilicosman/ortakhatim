@@ -1,7 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const { createClient } = require('@supabase/supabase-js');
-const path = require('path');
 
 dotenv.config();
 
@@ -11,10 +10,6 @@ const port = process.env.PORT || 3000;
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 app.use(express.json());
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
 
 app.post('/login', async (req, res) => {
     const { password } = req.body;

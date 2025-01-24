@@ -1,6 +1,6 @@
 // script.js
 
-// Load the configuration
+// Ensure the configuration is loaded before using it
 const supabaseUrl = CONFIG.SUPABASE_URL;
 const supabaseKey = CONFIG.SUPABASE_ANON_KEY;
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);

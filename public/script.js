@@ -1,7 +1,9 @@
-const supabaseUrl = 'YOUR_SUPABASE_URL';
-const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+// Load the configuration
+const supabaseUrl = CONFIG.SUPABASE_URL;
+const supabaseKey = CONFIG.SUPABASE_ANON_KEY;
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+// The rest of your code...
 document.getElementById('loginButton').addEventListener('click', async () => {
     const password = document.getElementById('passwordInput').value;
     const response = await fetch('/login', {

@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node server.js",
-    "build": "mkdir -p public && cp -r ../*.html ../*.css ../*.js public/"
+    "dev": "nodemon server.js"
   },
   "dependencies": {
     "express": "^4.17.1",
     "dotenv": "^8.2.0",
-    "@supabase/supabase-js": "^1.11.0"
+    "@supabase/supabase-js": "^1.11.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
   }
 }

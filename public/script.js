@@ -1,3 +1,4 @@
+// Supabase bağlantısını kur
 const supabaseUrl = CONFIG.SUPABASE_URL;
 const supabaseKey = CONFIG.SUPABASE_ANON_KEY;
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -8,7 +9,7 @@ document.getElementById('loginButton').addEventListener('click', async () => {
   if (password === 'vefa') {
     document.getElementById('loginContainer').style.display = 'none';
     document.getElementById('contentContainer').style.display = 'block';
-    loadHatims();
+    await loadHatims(); // Hatimleri yükle
   } else {
     document.getElementById('errorMessage').textContent = 'Geçersiz şifre';
   }
@@ -19,6 +20,7 @@ async function loadHatims() {
   const { data: hatims, error } = await supabase.from('hatimler').select('*').order('id', { ascending: true });
   if (error) {
     console.error('Hatim yüklenemedi:', error.message);
+    showMessage('Hatimler yüklenirken bir hata oluştu.', 'error');
     return;
   }
   document.getElementById('hatimContainer').innerHTML = ''; // Önceki içeriği temizle
@@ -54,7 +56,7 @@ function createHatimCard(hatim) {
 
 // Hatim ekle
 function addHatim(hatimData = null) {
-  const hatimCard = createHatimCard(hatimData);
+  const hatimCard = createHatimCard(hatimData || { id: Date.now(), date: new Date().toISOString().split('T')[0], dua: false, cuzler: Array(30).fill({ isim: '', okundu: false }) });
   document.getElementById('hatimContainer').appendChild(hatimCard);
   if (!hatimData) saveHatim(hatimCard);
 }
@@ -137,7 +139,7 @@ document.getElementById('resetDatabaseButton').addEventListener('click', async (
       showMessage('Veritabanı sıfırlanırken bir hata oluştu.', 'error');
     } else {
       showMessage('Veritabanı başarıyla sıfırlandı.', 'success');
-      loadHatims();
+      await loadHatims();
     }
   } else {
     showMessage('Geçersiz admin şifresi.', 'error');

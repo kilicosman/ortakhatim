@@ -1,7 +1,13 @@
 // Supabase bağlantısı
+// Import the Supabase client
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client
 const supabaseUrl = CONFIG.SUPABASE_URL;
 const supabaseKey = CONFIG.SUPABASE_ANON_KEY;
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Rest of your code...
 
 // JWT Token kontrolü
 let authToken = null;

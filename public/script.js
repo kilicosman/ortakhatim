@@ -1,15 +1,19 @@
-// Supabase bağlantısını kur
+// Supabase bağlantısı
 const supabaseUrl = CONFIG.SUPABASE_URL;
 const supabaseKey = CONFIG.SUPABASE_ANON_KEY;
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+// JWT Token kontrolü
+let authToken = null;
+
 // Giriş butonu işlevi
 document.getElementById('loginButton').addEventListener('click', async () => {
   const password = document.getElementById('passwordInput').value;
-  if (password === 'vefa') {
+  if (password === process.env.LOGIN_PASSWORD) {
+    authToken = jwt.sign({ user: 'authorized_user' }, process.env.JWT_SECRET, { expiresIn: '1h' });
     document.getElementById('loginContainer').style.display = 'none';
     document.getElementById('contentContainer').style.display = 'block';
-    await loadHatims(); // Hatimleri yükle
+    await loadHatims();
   } else {
     document.getElementById('errorMessage').textContent = 'Geçersiz şifre';
   }
@@ -23,7 +27,7 @@ async function loadHatims() {
     showMessage('Hatimler yüklenirken bir hata oluştu.', 'error');
     return;
   }
-  document.getElementById('hatimContainer').innerHTML = ''; // Önceki içeriği temizle
+  document.getElementById('hatimContainer').innerHTML = '';
   hatims.forEach(hatim => addHatim(hatim));
 }
 
@@ -31,26 +35,26 @@ async function loadHatims() {
 function createHatimCard(hatim) {
   const hatimDiv = document.createElement('div');
   hatimDiv.className = 'hatim';
+  hatimDiv.setAttribute('data-id', hatim.id);
   hatimDiv.innerHTML = `
     <h2>Hatim ${hatim.id}</h2>
-    <button class="delete-hatim">Sil</button>
-    <input type="date" value="${hatim.date}">
-    <button class="save-date">Kaydet</button>
-    <label for="hatim-duasi-checkbox-${hatim.id}">Hatim Duası</label>
-    <input type="checkbox" id="hatim-duasi-checkbox-${hatim.id}" ${hatim.dua ? 'checked' : ''} class="dua-checkbox">
+    <div class="hatim-info">
+      <input type="date" value="${hatim.date}">
+      <button class="save-date">Kaydet</button>
+      <label><input type="checkbox" class="dua-checkbox" ${hatim.dua ? 'checked' : ''}> Hatim Duası</label>
+      <button class="delete-hatim">Sil</button>
+    </div>
     <ul class="cuz-list">
       ${Array.from({ length: 30 }, (_, i) => `
         <li class="cuz-item">
-          <span>Cüz ${i + 1}</span>
-          <input type="text" placeholder="İsim yazınız" value="${hatim.cuzler[i]?.isim || ''}">
-          <button class="save-cuz">Kaydet</button>
+          <label>Cüz ${i + 1}</label>
+          <input type="text" maxlength="15" value="${hatim.cuzler[i]?.isim || ''}">
           <input type="checkbox" ${hatim.cuzler[i]?.okundu ? 'checked' : ''}>
-          <span class="okundu-label">okundu</span>
+          <button class="save-cuz">Kaydet</button>
         </li>
       `).join('')}
     </ul>
   `;
-  hatimDiv.setAttribute('data-id', hatim.id);
   return hatimDiv;
 }
 
@@ -72,10 +76,7 @@ async function saveHatim(hatimCard) {
     okundu: item.querySelector('input[type="checkbox"]').checked
   }));
 
-  const { data, error } = await supabase.from('hatimler').upsert([
-    { id: hatimId, date, dua, cuzler }
-  ]);
-
+  const { data, error } = await supabase.from('hatimler').upsert([{ id: hatimId, date, dua, cuzler }]);
   if (error) {
     console.error('Hatim kaydedilemedi:', error.message);
     showMessage('Hatim kaydedilirken bir hata oluştu.', 'error');
@@ -105,11 +106,6 @@ function showMessage(message, type = 'success') {
   setTimeout(() => messageDiv.remove(), 3000);
 }
 
-// Yeni hatim ekle butonu
-document.getElementById('addHatimButton').addEventListener('click', () => {
-  addHatim();
-});
-
 // Tıklama olaylarını dinle
 document.addEventListener('click', async (event) => {
   if (event.target.classList.contains('save-date')) {
@@ -132,7 +128,7 @@ document.addEventListener('click', async (event) => {
 // Veritabanını sıfırla butonu
 document.getElementById('resetDatabaseButton').addEventListener('click', async () => {
   const password = prompt('Admin şifresini girin:');
-  if (password === 'admin') {
+  if (password === process.env.ADMIN_PASSWORD) {
     const { error } = await supabase.from('hatimler').delete().neq('id', 0);
     if (error) {
       console.error('Veritabanı sıfırlanamadı:', error.message);

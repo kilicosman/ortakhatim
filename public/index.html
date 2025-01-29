@@ -9,24 +9,22 @@
 <body>
   <div id="loginContainer" class="container">
     <h1>Giriş Yap</h1>
-    <input type="password" id="passwordInput" placeholder="Şifreyi girin">
+    <input type="password" id="passwordInput" placeholder="Şifre">
     <button id="loginButton">Giriş Yap</button>
-    <div id="errorMessage" class="error-message"></div>
+    <p id="errorMessage" class="error-message"></p>
   </div>
 
   <div id="contentContainer" class="container" style="display: none;">
     <h1>Ortak Hatim</h1>
-    <div id="hatimContainer" class="hatim-container"></div>
     <button id="addHatimButton">Yeni Hatim Ekle</button>
+    <div id="hatimContainer" class="hatim-container"></div>
+    <button id="resetDatabaseButton" class="reset-button">Verileri Sıfırla</button>
   </div>
 
   <footer>
-    <button id="resetDatabaseButton" class="reset-button">Verileri Sıfırla</button>
-    <input type="password" id="resetPasswordInput" placeholder="Admin Şifreyi Girin" style="display: none;">
-    <p>Ortak Hatim 2024 &copy; Tüm Hakları Saklıdır</p>
+    <p>Ortak Hatim 2024 © Tüm Hakları Saklıdır</p>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
